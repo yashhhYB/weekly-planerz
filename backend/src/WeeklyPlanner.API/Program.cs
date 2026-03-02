@@ -2,13 +2,7 @@ using WeeklyPlanner.Infrastructure;
 using WeeklyPlanner.Application;
 using WeeklyPlanner.API.Middleware;
 
-// Build version: Production deployment - Ready for Azure
 var builder = WebApplication.CreateBuilder(args);
-
-// Logging
-builder.Services.AddLogging(logging =>
-    logging.AddConsole()
-);
 
 // Add services
 builder.Services.AddControllers();
