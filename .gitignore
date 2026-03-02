@@ -1,0 +1,64 @@
+# IDE
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+bin/
+obj/
+dist/
+publish/
+*.dll
+*.exe
+*.pdb
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+.angular/
+angular.json.bak
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Test results
+TestResults/
+
+# IDE settings
+.idea/
+*.iml
+*.user
+
+# OS
+Thumbs.db
+
+# NuGet
+.nuget/packages/
+*.nupkg
+
+# Rider
+.idea/
+.rider/
+
+# Local development
+appsettings.development.json

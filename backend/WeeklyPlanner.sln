@@ -1,0 +1,55 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Domain", "src\WeeklyPlanner.Domain\WeeklyPlanner.Domain.csproj", "{12345678-1234-1234-1234-123456789001}"
+EndProject
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Application", "src\WeeklyPlanner.Application\WeeklyPlanner.Application.csproj", "{12345678-1234-1234-1234-123456789002}"
+EndProject
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Infrastructure", "src\WeeklyPlanner.Infrastructure\WeeklyPlanner.Infrastructure.csproj", "{12345678-1234-1234-1234-123456789003}"
+EndProject
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.API", "src\WeeklyPlanner.API\WeeklyPlanner.API.csproj", "{12345678-1234-1234-1234-123456789004}"
+EndProject
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.UnitTests", "tests\WeeklyPlanner.UnitTests\WeeklyPlanner.UnitTests.csproj", "{12345678-1234-1234-1234-123456789005}"
+EndProject
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.IntegrationTests", "tests\WeeklyPlanner.IntegrationTests\WeeklyPlanner.IntegrationTests.csproj", "{12345678-1234-1234-1234-123456789006}"
+EndProject
+
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{12345678-1234-1234-1234-123456789001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12345678-1234-1234-1234-123456789002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12345678-1234-1234-1234-123456789003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12345678-1234-1234-1234-123456789004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12345678-1234-1234-1234-123456789005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12345678-1234-1234-1234-123456789006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12345678-1234-1234-1234-123456789006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12345678-1234-1234-1234-123456789006}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

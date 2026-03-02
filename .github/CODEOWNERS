@@ -1,0 +1,11 @@
+# Backend
+backend/ @backend-team
+
+# Frontend
+frontend/ @frontend-team
+
+# CI/CD
+.github/workflows/ @devops-team
+
+# Documentation
+docs/ @technical-leads

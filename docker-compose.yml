@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: weekly-planner-db
+    environment:
+      POSTGRES_USER: planner
+      POSTGRES_PASSWORD: WeeklyPlanner@123
+      POSTGRES_DB: weeklyplanner_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planner"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - weekly-planner-network
+
+  # ASP.NET Core Backend (optional - run locally during dev)
+  # Uncomment to use Docker for backend too
+  # api:
+  #   build:
+  #     context: ./backend
+  #   container_name: weekly-planner-api
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weeklyplanner_dev;Username=planner;Password=WeeklyPlanner@123"
+  #   ports:
+  #     - "5000:80"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   networks:
+  #     - weekly-planner-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  weekly-planner-network:
+    driver: bridge

@@ -1,0 +1,87 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run Tests with Coverage
+        run: |
+          dotnet test \
+          --configuration Release \
+          --no-build \
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=cobertura \
+          /p:Threshold=100 \
+          /p:ThresholdType=line \
+          /p:ThresholdStat=total
+
+      - name: Check Coverage
+        run: |
+          if grep -q 'linecoverage="100"' coverage.cobertura.xml; then
+            echo "✅ Coverage is 100%"
+          else
+            echo "❌ Coverage below 100%"
+            exit 1
+          fi
+
+      - name: Upload Coverage Reports
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.cobertura.xml
+          flags: backend
+          name: backend-coverage
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run StyleCop
+        run: dotnet build /p:StyleCopAnalyzersEnabled=true
+        continue-on-error: false
