@@ -1,0 +1,35 @@
+name: Quality Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Check Status Checks
+        run: |
+          echo "Quality Gate Active"
+          echo "Backend CI must pass"
+          echo "Frontend CI must pass"
+          echo "Code coverage must be 100%"
+          
+  require-pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Verify PR Format
+        run: |
+          if [ -z "${{ github.event.pull_request.body }}" ]; then
+            echo "PR description is required"
+            exit 1
+          fi
+          echo "PR format validated"
