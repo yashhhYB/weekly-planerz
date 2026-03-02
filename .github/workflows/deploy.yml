@@ -1,6 +1,7 @@
 name: Deploy to Azure
 
 # Automatically deploy backend to Azure when code is pushed to main
+# Uses refreshed publish profile for Azure App Service deployment
 
 on:
   push:
