@@ -1,196 +1,269 @@
 # Weekly Planner System
 
-## 🎯 Overview
+## Overview
 
-Production-grade Weekly Planning SPA with strict business rule enforcement.
+Production-grade Weekly Planning system with strict server-side business rule enforcement and automated CI/CD deployment.
 
 **Technology Stack:**
-- Backend: ASP.NET Core 8 (Clean Architecture, CQRS)
-- Frontend: Angular 17 (Standalone Components, Reactive Forms)
+- Backend: ASP.NET Core 8 (Clean Architecture + CQRS)
+- Frontend: Angular 17 (Standalone Components)  
 - Database: PostgreSQL
-- Deployment: Azure (App Service + Static Web App)
+- Testing: 100% Code Coverage (Enforced)
 - CI/CD: GitHub Actions
-- Testing: 100% code coverage enforced
+- Deployment: Azure (App Service + Static Web App)
 
 ---
 
-## 📋 Key Features
+## Domain Model
 
-✅ **Backlog Management**
-- Create, edit, archive backlog items
-- Categories: ClientFocused, TechDebt, RnD
+**Planning Lifecycle:**
+1. Backlog items created with category and estimated hours
+2. Planning week created (Tuesday only, strict validation)
+3. Team lead defines category percentages (must sum to 100%)
+4. Members allocate hours to items from backlog
+5. Planning frozen (immutable state enforcement)
+6. Team lead dashboard tracks progress and metrics
 
-✅ **Planning (Tuesday Only)**
-- Strict Tuesday validation
-- Work period: Wednesday → Monday (4 working days)
-- 30 hours per member enforced
-- Category percentage rules (must equal 100%)
-
-✅ **Member Planning**
-- Allocate hours from backlog items
-- Category limit enforcement
-- Real-time validation
-
-✅ **Frozen State**
-- Prevents modification after planning finalized
-- Only ActualHours & ProgressPercent can be updated
-
-✅ **Team Lead Dashboard**
-- Aggregated metrics
-- Per-user summary
-- Per-item breakdown
+**Business Rules (Server-Side Enforced):**
+- ✅ Tuesday-only planning creation (validated in constructor)
+- ✅ 30-hour allocation per member (strictly enforced)
+- ✅ Category percentages must equal 100% (±0.01 tolerance)
+- ✅ Category hour limits per member enforced
+- ✅ Freeze state immutability (modifications blocked after freeze)
+- ✅ Backlog items: ClientFocused, TechDebt, RnD categories
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-Angular SPA (Standalone)
-        ↓
+Angular 17 SPA (Standalone Components)
+                ↓
 ASP.NET Core 8 API (Clean Architecture)
-        ↓
+                ↓
 PostgreSQL Database
 ```
 
 **Backend Layers:**
-- Domain: Business entities & rules
-- Application: Commands, Queries, Validators
-- Infrastructure: DbContext, Repositories
-- API: Controllers, Middleware
+- **Domain:** Business entities, enums, domain services (zero dependencies)
+- **Application:** Commands, Queries, Validators (MediatR)
+- **Infrastructure:** DbContext, Repositories, Unit of Work
+- **API:** Controllers, Middleware, Health Checks
 
-**Frontend Structure:**
-- Shared components
-- Pages (Home, Backlog, Planning, Dashboard)
-- Services (HTTP, State)
-- Models (Typed DTOs)
+**Frontend:**
+- Standalone Components
+- Reactive Forms with validation
+- Typed HTTP Services
+- Responsive UI with dark mode
 
 ---
 
-## 📦 Project Structure
+## Repository Structure
 
 ```
 weekly-planner/
-├── .github/workflows/          # CI/CD pipelines
-├── backend/                    # ASP.NET Core solution
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── backend-ci.yml        # .NET build, test, coverage
+│   │   ├── frontend-ci.yml       # Node lint, test, build  
+│   │   ├── quality-gate.yml      # PR validation gate
+│   │   └── deploy.yml            # Azure deployment
+│   ├── CODEOWNERS
+│   └── pull_request_template.md
+│
+├── backend/
 │   ├── src/
-│   │   ├── WeeklyPlanner.Domain/
-│   │   ├── WeeklyPlanner.Application/
-│   │   ├── WeeklyPlanner.Infrastructure/
-│   │   └── WeeklyPlanner.API/
-│   └── tests/
-├── frontend/                   # Angular application
-│   ├── src/app/
-│   └── e2e/
-├── docs/                       # Documentation
-├── scripts/                    # Setup & seed scripts
-└── docker-compose.yml          # Local dev environment
+│   │   ├── WeeklyPlanner.Domain/        # Core business logic
+│   │   ├── WeeklyPlanner.Application/   # Use cases (CQRS)
+│   │   ├── WeeklyPlanner.Infrastructure/# Data access
+│   │   └── WeeklyPlanner.API/           # HTTP endpoints
+│   ├── tests/
+│   │   └── WeeklyPlanner.UnitTests/     # 100% coverage
+│   ├── WeeklyPlanner.sln
+│   └── Dockerfile
+│
+├── frontend/
+│   ├── src/
+│   │   └── app/                  # Angular application
+│   ├── e2e/                      # End-to-end tests
+│   └── Dockerfile
+│
+├── docs/
+│   ├── architecture.md           # System design
+│   ├── business-rules.md         # Domain rules with tests
+│   ├── api-contract.md           # REST API specification
+│   └── decisions.md              # Architecture Decision Records
+│
+├── scripts/
+│   ├── dev-setup.ps1             # Windows setup automation
+│   ├── dev-setup.sh              # Unix setup automation
+│   └── seed-data.sql             # Test data
+│
+├── docker-compose.yml            # Local PostgreSQL
+├── .editorconfig                 # Code style enforcement
+├── .gitignore
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
 - .NET 8 SDK
 - Node.js 20+
-- PostgreSQL 16
+- PostgreSQL 16 (or Docker)
 - Git
 
-### Local Development
+### Backend Setup
 
-**1. Backend Setup**
-```powershell
+```bash
 cd backend
 dotnet restore
-dotnet ef database update
+dotnet build
+dotnet test
 dotnet run
-# API: http://localhost:5000/swagger
 ```
 
-**2. Frontend Setup**
+API: `http://localhost:5000/swagger`
+
+### Frontend Setup
+
 ```bash
 cd frontend
 npm install
 ng serve
-# App: http://localhost:4200
 ```
 
-**3. Database (Docker)**
+App: `http://localhost:4200`
+
+### Database (Docker)
+
 ```bash
 docker-compose up -d db
-# Connection: localhost:5432
-# User: planner / Password: planner
+# PostgreSQL on localhost:5432
+# User: planner | Password: planner
 ```
 
 ---
 
-## 🧪 Testing
+## CI/CD Pipeline
 
-**Run Backend Tests**
-```powershell
-cd backend
-dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+### GitHub Actions Workflows
+
+| Workflow | Trigger | Purpose | Fail Condition |
+|----------|---------|---------|----------------|
+| backend-ci.yml | `push`, `pull_request` on backend/ | Compile, test, coverage | Coverage < 100% |
+| frontend-ci.yml | `push`, `pull_request` on frontend/ | Lint, test, build | Tests fail or lint errors |
+| quality-gate.yml | `pull_request` | Format & description validation | Invalid PR format |
+| deploy.yml | `push` to main | Deploy to Azure | Backend or frontend deployment fails |
+
+### Coverage Enforcement
+
+Backend CI requires **100% code coverage** - pipeline fails if threshold not met:
+
+```bash
+dotnet test /p:CollectCoverage=true \
+  /p:CoverletOutputFormat=opencover \
+  /p:Threshold=100
 ```
 
-**Run Frontend Tests**
+---
+
+## Testing Strategy
+
+**Backend: 100% Unit Test Coverage**
+```bash
+cd backend
+dotnet test
+```
+
+**Frontend: Unit Tests**
 ```bash
 cd frontend
-npm run test -- --watch=false --code-coverage
+npm run test -- --code-coverage
 ```
 
-**Coverage Requirement:** 100% enforced in CI pipeline
+Both test suites run automatically in CI pipeline.
 
 ---
 
-## 📚 Business Rules
+## Development Workflow
 
-### Planning Creation
-- Allowed only on **Tuesday**
-- Work period: **Wednesday → Monday** (4 working days)
-- Members: **8 hours/day = 30 hours total**
+1. Create feature branch from `develop`
+2. Make changes and commit with conventional commits
+3. Push to remote (CI runs automatically)
+4. All checks must pass before merge
+5. Create PR to `develop` 
+6. After code review, merge to `develop`
+7. When feature complete, create PR `develop` → `main`
+8. Merge to main (triggers Azure deployment)
 
-### Category Allocation
-- Team Lead defines: ClientPercent + TechDebtPercent + RndPercent = **100%**
-- Per member: hours calculated from percentages
-- Members **cannot exceed** category limits
-
-### Freeze State
-- After finalization: **IsFrozen = true**
-- Cannot add/remove tasks
-- Cannot change planned hours
-- **Can only update:** ActualHours, ProgressPercent
-
-### Validation
-- **All business rules validated server-side**
-- Frontend shows validation messages only
-- No partial implementations
+**Commit Convention:**
+```
+feat: Add feature description
+test: Add unit tests
+fix: Bug fix with explanation
+docs: Documentation updates
+refactor: Code improvements
+```
 
 ---
 
-## 🔄 CI/CD Pipeline
+## Engineering Principles
 
-**GitHub Actions Workflows:**
-1. `backend-ci.yml` - Build, test, coverage check (100% threshold)
-2. `frontend-ci.yml` - Lint, test, build
-3. `deploy.yml` - Auto-deploy to Azure on `main` branch
-
-**Deployment Targets:**
-- Backend: Azure App Service
-- Frontend: Azure Static Web App
-
----
-
-## 📖 Documentation
-
-- [Architecture Decision Records](docs/decisions.md)
-- [Business Rules Implementation](docs/business-rules.md)
-- [API Contract](docs/api-contract.md)
+- **Clean Architecture:** Strict layer separation, dependencies point inward
+- **Domain-Driven Design:** Business logic isolated in Domain layer
+- **CQRS Pattern:** Commands and Queries separated via MediatR
+- **Server-Side Validation:** All business rules enforced in backend
+- **Immutable State:** Frozen planning state cannot be modified
+- **100% Test Coverage:** Enforced by CI pipeline
+- **Convention over Configuration:** Sensible defaults, minimal boilerplate
 
 ---
 
-## 🏥 Health Check
+## Deployment
+
+### GitHub Secrets Required
 
 ```
+AZURE_BACKEND_PUBLISH_PROFILE    # Azure App Service deployment
+AZURE_STATIC_WEB_APP_TOKEN       # Azure Static Web App token
+```
+
+### Deployment Targets
+- **Backend:** Azure App Service (.NET 8)
+- **Frontend:** Azure Static Web App (Angular)  
+- **Database:** Azure Database for PostgreSQL
+
+---
+
+## Documentation
+
+- **[Architecture](docs/architecture.md)** - System design, layer responsibilities
+- **[Business Rules](docs/business-rules.md)** - Domain rules with test examples
+- **[API Contract](docs/api-contract.md)** - REST endpoint specifications
+- **[Decisions](docs/decisions.md)** - Architecture Decision Records (ADRs)
+
+---
+
+## Code Quality
+
+- C# StyleCop enforced
+- ESLint + Prettier for JavaScript/TypeScript
+- .editorconfig for consistency
+- Global exception middleware for error handling
+- Structured logging with Serilog
+- HTTPS enforced in production
+- CORS configured for frontend origin
+
+---
+
+## Health Check Endpoint
+
+```bash
 GET /health
 ```
 
@@ -198,34 +271,19 @@ Response: `{ "status": "healthy" }`
 
 ---
 
-## 📝 Engineering Standards
+## Engineering Standards
 
 ✅ Clean Architecture  
 ✅ SOLID Principles  
 ✅ Conventional Commits  
-✅ 100% Test Coverage  
-✅ ESLint + StyleCop  
-✅ Swagger (Dev only)  
-✅ Global Exception Middleware  
-✅ Serilog Logging  
+✅ 100% Test Coverage (Enforced)  
+✅ Code Style Enforcement  
+✅ Automated Testing  
+✅ Automated Deployment  
+✅ Structured Logging
 
 ---
 
-## 🔐 License
+## License
 
-Proprietary
-
----
-
-## 👥 Contributors
-
-(Team members added during implementation)
-
----
-
-## 📞 Support
-
-For issues, create a GitHub issue with:
-- Detailed description
-- Steps to reproduce
-- Environment information
+Proprietary - All rights reserved
