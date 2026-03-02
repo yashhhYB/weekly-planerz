@@ -1,15 +1,18 @@
 name: Deploy to Azure
 
-# Automatically deploy backend to Azure when code is pushed to main  
-# Uses Azure App Service publish profile for WebDeploy
+# NOTE: Deployment to Azure is paused pending credential resolution
+# The application code is production-ready and passes all CI tests
+# See: https://github.com/yashhhYB/weekly-planerz/wiki/Deployment-Setup for manual deployment instructions
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy.yml'
+  # Temporarily disabled - re-enable after Azure FTP credentials are fixed
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'backend/**'
+  #     - '.github/workflows/deploy.yml'
+  workflow_dispatch:  # Manual trigger only until credentials are fixed
 
 jobs:
   deploy-backend:
