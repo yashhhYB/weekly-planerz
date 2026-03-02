@@ -2,7 +2,7 @@ using Serilog;
 using WeeklyPlanner.Infrastructure;
 using WeeklyPlanner.Application;
 
-// Build version: Ready for Azure deployment
+// Build version: Production deployment - Updated credentials
 var builder = WebApplicationBuilder.CreateBuilder(args);
 
 // Logging
