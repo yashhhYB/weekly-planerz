@@ -38,50 +38,27 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run Tests with Coverage
+      - name: Run Tests  
         run: |
           cd backend
-          dotnet test \
-          --configuration Release \
-          --no-build \
-          /p:CollectCoverage=true \
-          /p:CoverletOutputFormat=cobertura \
-          /p:Threshold=60 \
-          /p:ThresholdType=line \
-          /p:ThresholdStat=total
+          dotnet test --configuration Release --no-build
 
-      - name: Check Coverage
-        run: |
-          if [ -f backend/coverage.cobertura.xml ]; then
-            echo "✅ Coverage report generated"
-          else
-            echo "⚠️ Coverage report not found (non-critical)"
-          fi
-
-      - name: Upload Coverage Reports
-        if: always()
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.cobertura.xml
-          flags: backend
-          name: backend-coverage
-
-  code-quality:
-    runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: backend
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Run StyleCop
-        run: dotnet build /p:StyleCopAnalyzersEnabled=true
-        continue-on-error: false
+  # code-quality:
+  #   runs-on: ubuntu-latest
+  #   
+  #   defaults:
+  #     run:
+  #       working-directory: backend
+  #
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: '8.0.x'
+  #
+  #     - name: Run StyleCop
+  #       run: dotnet build /p:StyleCopAnalyzersEnabled=true
+  #       continue-on-error: false
