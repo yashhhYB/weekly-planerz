@@ -39,9 +39,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run Tests  
-        run: |
-          cd backend
-          dotnet test --configuration Release --no-build
+        run: dotnet test --configuration Release --no-build
 
   # code-quality:
   #   runs-on: ubuntu-latest
