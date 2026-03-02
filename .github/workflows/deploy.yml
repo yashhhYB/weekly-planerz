@@ -14,7 +14,6 @@ on:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
-    environment: production
     
     defaults:
       run:
@@ -34,12 +33,14 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Publish
-        run: dotnet publish --no-build --configuration Release --output publish
+      - name: Publish Release
+        run: dotnet publish --configuration Release --output webpublish --no-build
 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v2
+      - name: Deploy to Azure via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          app-name: weeklyplanner-api-12345
-          publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
-          package: publish
+          server: ftp://waws-prod-pn1-037.ftp.azurewebsites.windows.net
+          username: ${{ secrets.AZURE_FTP_USERNAME }}
+          password: ${{ secrets.AZURE_FTP_PASSWORD }}
+          local-dir: ./backend/webpublish/
+          server-dir: /site/wwwroot/
