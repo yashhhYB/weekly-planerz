@@ -1,4 +1,5 @@
 name: Backend CI
+# Continuous integration for .NET backend - runs on every push to main/develop
 
 on:
   push:
