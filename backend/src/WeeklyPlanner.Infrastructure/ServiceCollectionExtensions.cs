@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using WeeklyPlanner.Infrastructure.Persistence;
+using WeeklyPlanner.Infrastructure.Repositories;
 
 namespace WeeklyPlanner.Infrastructure;
 

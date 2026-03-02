@@ -1,15 +1,13 @@
-using Serilog;
 using WeeklyPlanner.Infrastructure;
 using WeeklyPlanner.Application;
+using WeeklyPlanner.API.Middleware;
 
-// Build version: Production deployment - Updated credentials
-var builder = WebApplicationBuilder.CreateBuilder(args);
+// Build version: Production deployment - Ready for Azure
+var builder = WebApplication.CreateBuilder(args);
 
 // Logging
-builder.Host.UseSerilog((context, configuration) =>
-    configuration
-        .MinimumLevel.Information()
-        .WriteTo.Console()
+builder.Services.AddLogging(logging =>
+    logging.AddConsole()
 );
 
 // Add services
@@ -60,6 +58,6 @@ app.MapGet("/health", () => new
     status = "healthy",
     timestamp = DateTime.UtcNow,
     environment = app.Environment.EnvironmentName
-}).WithName("Health").WithOpenApi();
+}).WithName("Health");
 
 await app.RunAsync();
