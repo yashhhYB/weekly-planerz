@@ -39,7 +39,7 @@ jobs:
       - name: Deploy to Azure via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp://waws-prod-pn1-037.ftp.azurewebsites.windows.net
+          server: waws-prod-pn1-037.ftp.azurewebsites.windows.net
           username: ${{ secrets.AZURE_FTP_USERNAME }}
           password: ${{ secrets.AZURE_FTP_PASSWORD }}
           local-dir: ./backend/webpublish/
