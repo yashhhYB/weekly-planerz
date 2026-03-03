@@ -8,11 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger (Development only)
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddSwaggerGen();
-}
+// Swagger
+builder.Services.AddSwaggerGen();
 
 // Register application services
 builder.Services.AddApplicationServices();
@@ -32,11 +29,8 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Global exception middleware
 app.UseMiddleware<GlobalExceptionMiddleware>();
