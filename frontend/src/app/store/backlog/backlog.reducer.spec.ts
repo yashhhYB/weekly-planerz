@@ -52,6 +52,7 @@ describe('BacklogReducer', () => {
     const action = BacklogActions.createBacklogItem({ 
       request: {
         title: 'New Task',
+        description: 'New task description',
         category: BacklogCategory.Work,
         priority: 3,
         estimatedHours: 5
@@ -76,7 +77,14 @@ describe('BacklogReducer', () => {
       { ...initialBacklogState, items: [mockBacklogItem] },
       BacklogActions.updateBacklogItem({ 
         id: '1', 
-        request: { title: 'Updated Task' }
+        request: { 
+          title: 'Updated Task',
+          description: 'Test description',
+          category: BacklogCategory.Work,
+          estimatedHours: 5,
+          status: BacklogStatus.Pending,
+          priority: 3
+        }
       })
     );
     expect(state.loading).toBe(true);
@@ -103,7 +111,7 @@ describe('BacklogReducer', () => {
   it('should handle archiveBacklogItemSuccess', () => {
     const archived = { ...mockBacklogItem, isArchived: true };
     const state = backlogReducer(
-      { ...initialState, loading: true, items: [mockBacklogItem] },
+      { ...initialBacklogState, loading: true, items: [mockBacklogItem] },
       BacklogActions.archiveBacklogItemSuccess({ item: archived })
     );
     expect(state.loading).toBe(false);
@@ -140,8 +148,8 @@ describe('BacklogReducer', () => {
   });
 
   it('should handle loadActiveBacklogItems', () => {
-    const action = BacklogActions.loadActiveBacklogItems({ skip: 0, take: 50 });
-    const state = backlogReducer(initialState, action);
+    const action = BacklogActions.loadActiveBacklogItems();
+    const state = backlogReducer(initialBacklogState, action);
     expect(state.loading).toBe(true);
   });
 });

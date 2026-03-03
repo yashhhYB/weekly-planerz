@@ -5,14 +5,13 @@ import { PlanningWeek } from '../../models';
 describe('PlanningReducer', () => {
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: '2026-01-07',
-    weekEndDate: '2026-01-13',
+    weekStartDate: new Date('2026-01-07'),
+    weekEndDate: new Date('2026-01-13'),
     goals: 'Test goals',
     keyActivities: 'Test activities',
     reflection: 'Test reflection',
     healthScore: 8,
     productivity: 85,
-    isFrozenAtCreation: false,
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -54,7 +53,9 @@ describe('PlanningReducer', () => {
       request: {
         weekStartDate: '2026-01-07',
         goals: 'New goals',
-        keyActivities: 'New activities'
+        keyActivities: 'New activities',
+        healthScore: 7,
+        productivity: 80
       }
     });
     const state = planningReducer(initialPlanningState, action);
@@ -99,12 +100,12 @@ describe('PlanningReducer', () => {
   });
 
   it('should handle freezePlanningWeek success', () => {
-    const frozen = { ...mockPlanningWeek, isFrozenAtCreation: true };
+    const frozen = { ...mockPlanningWeek, goals: 'Frozen goals' };
     const state = planningReducer(
       { ...initialPlanningState, weeks: [mockPlanningWeek] },
       PlanningActions.freezePlanningWeekSuccess({ week: frozen })
     );
-    expect(state.weeks[0].isFrozenAtCreation).toBe(true);
+    expect(state.weeks[0].goals).toBe('Frozen goals');
   });
 
   it('should handle deletePlanningWeek', () => {

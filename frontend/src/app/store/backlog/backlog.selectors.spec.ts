@@ -25,6 +25,8 @@ describe('BacklogSelectors', () => {
 
   const mockState: BacklogState = {
     items: [mockBacklogItem, mockInProgressItem],
+    selectedItem: null,
+    activeItems: [],
     loading: false,
     error: null
   };
@@ -58,32 +60,34 @@ describe('BacklogSelectors', () => {
 
   it('should select backlog items by status', () => {
     const selector = fromBacklogSelectors.selectBacklogItemsByStatus(BacklogStatus.InProgress);
-    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
+    const result = (selector as any).projector([mockBacklogItem, mockInProgressItem]);
     expect(result.length).toBe(1);
     expect(result[0].status).toBe(BacklogStatus.InProgress);
   });
 
   it('should select active backlog items', () => {
     const selector = fromBacklogSelectors.selectActiveBacklogItems;
-    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
+    const result = selector.projector({ ...mockState, activeItems: [mockBacklogItem, mockInProgressItem] });
     expect(result.length).toBeGreaterThan(0);
   });
 
   it('should select backlog items by category', () => {
     const selector = fromBacklogSelectors.selectBacklogItemsByCategory(BacklogCategory.Work);
-    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
+    const result = (selector as any).projector([mockBacklogItem, mockInProgressItem]);
     expect(result.length).toBe(2);
   });
 
   it('should select backlog item count', () => {
     const selector = fromBacklogSelectors.selectBacklogItemsCount;
-    const result = selector.projector(mockState);
+    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
     expect(result).toBe(2);
   });
 
   it('should handle empty items array', () => {
     const emptyState: BacklogState = {
       items: [],
+      selectedItem: null,
+      activeItems: [],
       loading: false,
       error: null
     };

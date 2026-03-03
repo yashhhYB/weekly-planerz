@@ -3,7 +3,7 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { Store } from '@ngrx/store';
 import { Observable, of, throwError } from 'rxjs';
 import { PlanningEffects } from './planning.effects';
-import { PlanningService } from '../../services/planning.service';
+import { PlanningService } from '../../core/services';
 import * as PlanningActions from './planning.actions';
 import { PlanningWeek } from '../../models';
 
@@ -14,14 +14,13 @@ describe('PlanningEffects', () => {
 
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: '2026-01-07',
-    weekEndDate: '2026-01-13',
+    weekStartDate: new Date('2026-01-07'),
+    weekEndDate: new Date('2026-01-13'),
     goals: 'Test goals',
     keyActivities: 'Test activities',
     reflection: 'Test reflection',
     healthScore: 8,
     productivity: 85,
-    isFrozenAtCreation: false,
     createdAt: new Date(),
     updatedAt: new Date()
   };

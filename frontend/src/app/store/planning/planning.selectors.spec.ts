@@ -5,14 +5,13 @@ import { PlanningWeek } from '../../models';
 describe('PlanningSelectors', () => {
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: '2026-01-07',
-    weekEndDate: '2026-01-13',
+    weekStartDate: new Date('2026-01-07'),
+    weekEndDate: new Date('2026-01-13'),
     goals: 'Test goals',
     keyActivities: 'Test activities',
     reflection: 'Test reflection',
     healthScore: 8,
     productivity: 85,
-    isFrozenAtCreation: false,
     createdAt: new Date(),
     updatedAt: new Date()
   };

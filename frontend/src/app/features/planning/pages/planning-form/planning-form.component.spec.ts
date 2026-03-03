@@ -25,7 +25,6 @@ describe('PlanningFormComponent', () => {
     reflection: 'Test reflection',
     healthScore: 8,
     productivity: 85,
-    isFrozenAtCreation: false,
     createdAt: new Date(),
     updatedAt: new Date()
   };
