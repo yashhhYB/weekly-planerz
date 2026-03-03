@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,11 @@ public static class ServiceCollectionExtensions
         // Repositories
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // MediatR - Register handlers from Infrastructure layer
+        services.AddMediatR(config =>
+            config.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly)
+        );
 
         return services;
     }
