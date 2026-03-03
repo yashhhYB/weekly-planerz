@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { PlanningService } from '../../../../core/services';
-import { CreatePlanningWeekRequest } from '../../../../models';
+import { CreatePlanningWeekRequest, UpdatePlanningWeekRequest } from '../../../../models';
 
 @Component({
   selector: 'app-planning-form',
@@ -232,10 +232,16 @@ export class PlanningFormComponent implements OnInit {
     this.submitting = true;
     this.error = null;
 
-    const request: CreatePlanningWeekRequest = this.form.value;
-
     if (this.isEdit && this.planningId) {
-      this.planningService.updatePlanningWeek(this.planningId, request).subscribe({
+      // For update, map to UpdatePlanningWeekRequest type
+      const updateRequest: UpdatePlanningWeekRequest = {
+        goals: this.form.value.goals,
+        keyActivities: this.form.value.keyActivities,
+        reflection: this.form.value.reflection || '',
+        healthScore: this.form.value.healthScore,
+        productivity: this.form.value.productivity
+      };
+      this.planningService.updatePlanningWeek(this.planningId, updateRequest).subscribe({
         next: () => {
           this.router.navigate(['/planning', this.planningId]);
         },
@@ -245,7 +251,9 @@ export class PlanningFormComponent implements OnInit {
         }
       });
     } else {
-      this.planningService.createPlanningWeek(request).subscribe({
+      // For create, use CreatePlanningWeekRequest
+      const createRequest: CreatePlanningWeekRequest = this.form.value;
+      this.planningService.createPlanningWeek(createRequest).subscribe({
         next: (week) => {
           this.router.navigate(['/planning', week.id]);
         },

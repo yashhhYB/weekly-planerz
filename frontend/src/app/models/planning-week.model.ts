@@ -48,6 +48,7 @@ export interface CreatePlanningWeekRequest {
   weekStartDate: string; // ISO date - must be Tuesday
   goals: string;
   keyActivities: string;
+  reflection?: string; // Optional on create
   healthScore: number; // 1-10
   productivity: number; // percentage
 }

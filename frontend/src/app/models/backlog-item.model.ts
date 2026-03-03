@@ -64,6 +64,7 @@ export interface CreateBacklogItemRequest {
   category: BacklogCategory;
   estimatedHours: number;
   priority: number;
+  status?: BacklogStatus; // Optional on create, defaults to Pending
 }
 
 /**

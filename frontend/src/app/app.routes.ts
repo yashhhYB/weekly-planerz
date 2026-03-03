@@ -8,7 +8,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    component: () => import('./home/home.component').then(m => m.HomeComponent),
+    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent),
     data: { title: 'Dashboard' }
   },
   {

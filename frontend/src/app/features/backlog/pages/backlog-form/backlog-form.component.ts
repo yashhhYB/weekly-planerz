@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { BacklogService } from '../../../../core/services';
-import { CreateBacklogItemRequest, BacklogCategory, BacklogStatus } from '../../../../models';
+import { CreateBacklogItemRequest, UpdateBacklogItemRequest, BacklogCategory, BacklogStatus } from '../../../../models';
 
 @Component({
   selector: 'app-backlog-form',
@@ -259,10 +259,17 @@ export class BacklogFormComponent implements OnInit {
     this.submitting = true;
     this.error = null;
 
-    const request: CreateBacklogItemRequest = this.form.value;
-
     if (this.isEdit && this.backlogId) {
-      this.backlogService.updateBacklogItem(this.backlogId, request).subscribe({
+      // For update, map to UpdateBacklogItemRequest type
+      const updateRequest: UpdateBacklogItemRequest = {
+        title: this.form.value.title,
+        description: this.form.value.description,
+        category: this.form.value.category,
+        estimatedHours: this.form.value.estimatedHours,
+        status: this.form.value.status || BacklogStatus.Pending,
+        priority: this.form.value.priority
+      };
+      this.backlogService.updateBacklogItem(this.backlogId, updateRequest).subscribe({
         next: () => {
           this.router.navigate(['/backlog', this.backlogId]);
         },
@@ -272,7 +279,15 @@ export class BacklogFormComponent implements OnInit {
         }
       });
     } else {
-      this.backlogService.createBacklogItem(request).subscribe({
+      // For create, use CreateBacklogItemRequest
+      const createRequest: CreateBacklogItemRequest = {
+        title: this.form.value.title,
+        description: this.form.value.description,
+        category: this.form.value.category,
+        estimatedHours: this.form.value.estimatedHours,
+        priority: this.form.value.priority
+      };
+      this.backlogService.createBacklogItem(createRequest).subscribe({
         next: (item) => {
           this.router.navigate(['/backlog', item.id]);
         },
