@@ -62,3 +62,6 @@ Thumbs.db
 
 # Local development
 appsettings.development.json
+publish-profile.xml
+deploy-output.log
+postgres-setup.log

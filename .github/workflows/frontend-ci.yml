@@ -35,21 +35,13 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Lint
         run: npm run lint
 
-      - name: Run Tests with Coverage
-        run: npm run test -- --watch=false --code-coverage --browsers=ChromeHeadless
-
       - name: Build
         run: npm run build
 
-      - name: Upload Coverage Reports
-        if: always()
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/cobertura-coverage.xml
-          flags: frontend
-          name: frontend-coverage
+      - name: Run Tests
+        run: npm run test -- --watch=false --browsers=ChromeHeadless
