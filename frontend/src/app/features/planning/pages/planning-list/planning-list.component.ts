@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { PlanningService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { PlanningWeek } from '../../../../models';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { AppStoreState } from '../../../../store';
+import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
+import * as PlanningActions from '../../../../store/planning/planning.actions';
 
 @Component({
   selector: 'app-planning-list',
@@ -19,16 +21,16 @@ import { takeUntil } from 'rxjs/operators';
         </button>
       </div>
 
-      <div *ngIf="loading" class="loading">
+      <div *ngIf="loading$ | async" class="loading">
         <p>Loading planning weeks...</p>
       </div>
 
-      <div *ngIf="!loading && planningWeeks.length === 0" class="empty-state">
+      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length === 0" class="empty-state">
         <p>No planning weeks found. Create your first planning week to get started!</p>
       </div>
 
-      <div *ngIf="!loading && planningWeeks.length > 0" class="planning-grid">
-        <div *ngFor="let week of planningWeeks" class="planning-card" (click)="navigateToDetail(week.id)">
+      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length! > 0" class="planning-grid">
+        <div *ngFor="let week of planningWeeks$ | async" class="planning-card" (click)="navigateToDetail(week.id)">
           <h3>{{ formatDate(week.weekStartDate) }}</h3>
           <p class="week-range">{{ formatDate(week.weekStartDate) }} - {{ formatDate(week.weekEndDate) }}</p>
           <div class="metrics">
@@ -45,7 +47,7 @@ import { takeUntil } from 'rxjs/operators';
         </div>
       </div>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -165,41 +167,22 @@ import { takeUntil } from 'rxjs/operators';
     }
   `]
 })
-export class PlanningListComponent implements OnInit, OnDestroy {
-  planningWeeks: PlanningWeek[] = [];
-  loading = true;
-  error: string | null = null;
-  private destroy$ = new Subject<void>();
+export class PlanningListComponent implements OnInit {
+  planningWeeks$: Observable<PlanningWeek[]>;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
 
   constructor(
-    private planningService: PlanningService,
+    private store: Store<AppStoreState>,
     private router: Router
-  ) {}
+  ) {
+    this.planningWeeks$ = this.store.select(PlanningSelectors.selectAllPlanningWeeks);
+    this.loading$ = this.store.select(PlanningSelectors.selectPlanningLoading);
+    this.error$ = this.store.select(PlanningSelectors.selectPlanningError);
+  }
 
   ngOnInit(): void {
-    this.loadPlanningWeeks();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadPlanningWeeks(): void {
-    this.loading = true;
-    this.error = null;
-    this.planningService.getAllPlanningWeeks()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (weeks) => {
-          this.planningWeeks = weeks;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to load planning weeks';
-          this.loading = false;
-        }
-      });
+    this.store.dispatch(PlanningActions.loadPlanningWeeks({ skip: 0, take: 50 }));
   }
 
   formatDate(date: Date): string {

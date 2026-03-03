@@ -1,10 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { BacklogService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { BacklogItem, BacklogCategory, BacklogStatus } from '../../../../models';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { AppStoreState } from '../../../../store';
+import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
+import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 
 @Component({
   selector: 'app-backlog-list',
@@ -33,15 +36,15 @@ import { takeUntil } from 'rxjs/operators';
         </button>
       </div>
 
-      <div *ngIf="loading" class="loading">
+      <div *ngIf="loading$ | async" class="loading">
         <p>Loading backlog items...</p>
       </div>
 
-      <div *ngIf="!loading && filteredBacklogItems.length === 0" class="empty-state">
+      <div *ngIf="(loading$ | async) === false && (filteredItems$ | async)?.length === 0" class="empty-state">
         <p>No backlog items found. Create your first item to get started!</p>
       </div>
 
-      <div *ngIf="!loading && filteredBacklogItems.length > 0" class="backlog-table">
+      <div *ngIf="(loading$ | async) === false && (filteredItems$ | async)?.length! > 0" class="backlog-table">
         <table>
           <thead>
             <tr>
@@ -54,7 +57,7 @@ import { takeUntil } from 'rxjs/operators';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of filteredBacklogItems" class="backlog-row">
+            <tr *ngFor="let item of filteredItems$ | async" class="backlog-row">
               <td class="title" (click)="navigateToDetail(item.id)">{{ item.title }}</td>
               <td><span class="badge" [ngClass]="'category-' + item.category.toLowerCase()">{{ item.category }}</span></td>
               <td><span class="badge" [ngClass]="'status-' + item.status.toLowerCase()">{{ item.status }}</span></td>
@@ -73,7 +76,7 @@ import { takeUntil } from 'rxjs/operators';
         </table>
       </div>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -266,58 +269,35 @@ import { takeUntil } from 'rxjs/operators';
     }
   `]
 })
-export class BacklogListComponent implements OnInit, OnDestroy {
-  backlogItems: BacklogItem[] = [];
-  filteredBacklogItems: BacklogItem[] = [];
+export class BacklogListComponent implements OnInit {
+  backlogItems$: Observable<BacklogItem[]>;
+  filteredItems$: Observable<BacklogItem[]>;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
   selectedStatus: string = 'All';
   statuses = ['All', 'Pending', 'InProgress', 'Completed', 'Archived'];
-  loading = true;
-  error: string | null = null;
-  private destroy$ = new Subject<void>();
 
   constructor(
-    private backlogService: BacklogService,
+    private store: Store<AppStoreState>,
     private router: Router
-  ) {}
+  ) {
+    this.backlogItems$ = this.store.select(BacklogSelectors.selectAllBacklogItems);
+    this.loading$ = this.store.select(BacklogSelectors.selectBacklogLoading);
+    this.error$ = this.store.select(BacklogSelectors.selectBacklogError);
+    this.filteredItems$ = this.backlogItems$;
+  }
 
   ngOnInit(): void {
-    this.loadBacklogItems();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  loadBacklogItems(): void {
-    this.loading = true;
-    this.error = null;
-    this.backlogService.getAllBacklogItems()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (items) => {
-          this.backlogItems = items;
-          this.applyFilter();
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to load backlog items';
-          this.loading = false;
-        }
-      });
+    this.store.dispatch(BacklogActions.loadBacklogItems({ skip: 0, take: 50 }));
   }
 
   filterByStatus(status: string): void {
     this.selectedStatus = status;
-    this.applyFilter();
-  }
-
-  private applyFilter(): void {
-    if (this.selectedStatus === 'All') {
-      this.filteredBacklogItems = this.backlogItems;
+    if (status === 'All') {
+      this.filteredItems$ = this.backlogItems$;
     } else {
-      this.filteredBacklogItems = this.backlogItems.filter(
-        item => item.status === this.selectedStatus
+      this.filteredItems$ = this.backlogItems$.pipe(
+        map(items => items.filter(item => item.status === status))
       );
     }
   }
@@ -336,16 +316,7 @@ export class BacklogListComponent implements OnInit, OnDestroy {
 
   archiveItem(id: string): void {
     if (confirm('Archive this backlog item?')) {
-      this.backlogService.archiveBacklogItem(id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.loadBacklogItems();
-          },
-          error: (err) => {
-            this.error = 'Failed to archive backlog item';
-          }
-        });
+      this.store.dispatch(BacklogActions.archiveBacklogItem({ id }));
     }
   }
 }

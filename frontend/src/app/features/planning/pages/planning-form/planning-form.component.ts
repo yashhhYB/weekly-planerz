@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { PlanningService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { CreatePlanningWeekRequest, UpdatePlanningWeekRequest } from '../../../../models';
+import { AppStoreState } from '../../../../store';
+import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
+import * as PlanningActions from '../../../../store/planning/planning.actions';
 
 @Component({
   selector: 'app-planning-form',
@@ -78,7 +82,7 @@ import { CreatePlanningWeekRequest, UpdatePlanningWeekRequest } from '../../../.
         </div>
       </form>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -175,16 +179,17 @@ export class PlanningFormComponent implements OnInit {
   form!: FormGroup;
   isEdit = false;
   submitting = false;
-  error: string | null = null;
+  error$: Observable<string | null>;
   private planningId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
-    private planningService: PlanningService,
+    private store: Store<AppStoreState>,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.initializeForm();
+    this.error$ = this.store.select(PlanningSelectors.selectPlanningError);
   }
 
   ngOnInit(): void {
@@ -192,7 +197,17 @@ export class PlanningFormComponent implements OnInit {
       if (params['id']) {
         this.isEdit = true;
         this.planningId = params['id'];
-        this.loadPlanningWeek();
+        this.store.select(PlanningSelectors.selectPlanningWeekById(params['id'])).subscribe(week => {
+          if (week) {
+            this.form.patchValue({
+              weekStartDate: this.formatDateForInput(week.weekStartDate),
+              goals: week.goals,
+              keyActivities: week.keyActivities,
+              healthScore: week.healthScore,
+              productivity: week.productivity
+            });
+          }
+        });
       }
     });
   }
@@ -207,33 +222,12 @@ export class PlanningFormComponent implements OnInit {
     });
   }
 
-  private loadPlanningWeek(): void {
-    if (!this.planningId) return;
-
-    this.planningService.getPlanningWeekById(this.planningId).subscribe({
-      next: (week) => {
-        this.form.patchValue({
-          weekStartDate: this.formatDateForInput(week.weekStartDate),
-          goals: week.goals,
-          keyActivities: week.keyActivities,
-          healthScore: week.healthScore,
-          productivity: week.productivity
-        });
-      },
-      error: (err) => {
-        this.error = 'Failed to load planning week';
-      }
-    });
-  }
-
   onSubmit(): void {
     if (!this.form.valid) return;
 
     this.submitting = true;
-    this.error = null;
 
     if (this.isEdit && this.planningId) {
-      // For update, map to UpdatePlanningWeekRequest type
       const updateRequest: UpdatePlanningWeekRequest = {
         goals: this.form.value.goals,
         keyActivities: this.form.value.keyActivities,
@@ -241,27 +235,13 @@ export class PlanningFormComponent implements OnInit {
         healthScore: this.form.value.healthScore,
         productivity: this.form.value.productivity
       };
-      this.planningService.updatePlanningWeek(this.planningId, updateRequest).subscribe({
-        next: () => {
-          this.router.navigate(['/planning', this.planningId]);
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to update planning week';
-          this.submitting = false;
-        }
-      });
+      this.store.dispatch(PlanningActions.updatePlanningWeek({ 
+        id: this.planningId, 
+        request: updateRequest 
+      }));
     } else {
-      // For create, use CreatePlanningWeekRequest
       const createRequest: CreatePlanningWeekRequest = this.form.value;
-      this.planningService.createPlanningWeek(createRequest).subscribe({
-        next: (week) => {
-          this.router.navigate(['/planning', week.id]);
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to create planning week';
-          this.submitting = false;
-        }
-      });
+      this.store.dispatch(PlanningActions.createPlanningWeek({ request: createRequest }));
     }
   }
 

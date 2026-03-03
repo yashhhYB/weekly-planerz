@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { PlanningService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { PlanningWeek } from '../../../../models';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { AppStoreState } from '../../../../store';
+import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
+import * as PlanningActions from '../../../../store/planning/planning.actions';
 
 @Component({
   selector: 'app-planning-detail',
@@ -21,11 +23,11 @@ import { takeUntil } from 'rxjs/operators';
         </div>
       </div>
 
-      <div *ngIf="loading" class="loading">
+      <div *ngIf="loading$ | async" class="loading">
         <p>Loading planning week details...</p>
       </div>
 
-      <div *ngIf="!loading && planningWeek" class="week-details">
+      <div *ngIf="(loading$ | async) === false && (planningWeek$ | async) as planningWeek" class="week-details">
         <h1>Planning Week: {{ formatDate(planningWeek.weekStartDate) }}</h1>
         
         <div class="date-range">
@@ -64,7 +66,7 @@ import { takeUntil } from 'rxjs/operators';
         </div>
       </div>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -227,46 +229,27 @@ import { takeUntil } from 'rxjs/operators';
     }
   `]
 })
-export class PlanningDetailComponent implements OnInit, OnDestroy {
-  planningWeek: PlanningWeek | null = null;
-  loading = true;
-  error: string | null = null;
-  private destroy$ = new Subject<void>();
+export class PlanningDetailComponent implements OnInit {
+  planningWeek$: Observable<PlanningWeek | undefined>;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
   private planningId: string = '';
 
   constructor(
-    private planningService: PlanningService,
+    private store: Store<AppStoreState>,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.planningWeek$ = new Observable();
+    this.loading$ = this.store.select(PlanningSelectors.selectPlanningLoading);
+    this.error$ = this.store.select(PlanningSelectors.selectPlanningError);
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.planningId = params['id'];
-      this.loadPlanningWeek();
+      this.planningWeek$ = this.store.select(PlanningSelectors.selectPlanningWeekById(this.planningId));
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private loadPlanningWeek(): void {
-    this.loading = true;
-    this.error = null;
-    this.planningService.getPlanningWeekById(this.planningId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (week) => {
-          this.planningWeek = week;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to load planning week';
-          this.loading = false;
-        }
-      });
   }
 
   navigateToEdit(): void {
@@ -275,32 +258,13 @@ export class PlanningDetailComponent implements OnInit, OnDestroy {
 
   deletePlanning(): void {
     if (confirm('Are you sure you want to delete this planning week?')) {
-      this.planningService.deletePlanningWeek(this.planningId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.router.navigate(['/planning']);
-          },
-          error: (err) => {
-            this.error = 'Failed to delete planning week';
-          }
-        });
+      this.store.dispatch(PlanningActions.deletePlanningWeek({ id: this.planningId }));
     }
   }
 
   freezeWeek(): void {
     if (confirm('Are you sure you want to freeze this planning week?')) {
-      this.planningService.freezePlanningWeek(this.planningId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (week) => {
-            this.planningWeek = week;
-            alert('Planning week frozen successfully!');
-          },
-          error: (err) => {
-            this.error = 'Failed to freeze planning week';
-          }
-        });
+      this.store.dispatch(PlanningActions.freezePlanningWeek({ id: this.planningId }));
     }
   }
 

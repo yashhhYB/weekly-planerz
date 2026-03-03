@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { PlanningService, BacklogService } from '../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AppStoreState } from '../store';
+import * as PlanningSelectors from '../store/planning/planning.selectors';
+import * as BacklogSelectors from '../store/backlog/backlog.selectors';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +24,7 @@ import { PlanningService, BacklogService } from '../core/services';
           <div class="stat-icon">📋</div>
           <div class="stat-content">
             <h3>Planning Weeks</h3>
-            <p class="stat-value">{{ planningWeekCount }}</p>
+            <p class="stat-value">{{ planningWeekCount$ | async }}</p>
             <p class="stat-label">Active cycles</p>
             <button (click)="navigateTo('/planning')" class="btn-card">View All →</button>
           </div>
@@ -29,7 +34,7 @@ import { PlanningService, BacklogService } from '../core/services';
           <div class="stat-icon">✓</div>
           <div class="stat-content">
             <h3>Backlog Items</h3>
-            <p class="stat-value">{{ backlogItemCount }}</p>
+            <p class="stat-value">{{ backlogItemCount$ | async }}</p>
             <p class="stat-label">Tasks to manage</p>
             <button (click)="navigateTo('/backlog')" class="btn-card">View All →</button>
           </div>
@@ -39,7 +44,7 @@ import { PlanningService, BacklogService } from '../core/services';
           <div class="stat-icon">🎯</div>
           <div class="stat-content">
             <h3>Active Items</h3>
-            <p class="stat-value">{{ activeBacklogCount }}</p>
+            <p class="stat-value">{{ activeBacklogCount$ | async }}</p>
             <p class="stat-label">In progress</p>
             <button (click)="navigateTo('/backlog')" class="btn-card">View All →</button>
           </div>
@@ -335,47 +340,27 @@ import { PlanningService, BacklogService } from '../core/services';
   `]
 })
 export class HomeComponent implements OnInit {
-  planningWeekCount = 0;
-  backlogItemCount = 0;
-  activeBacklogCount = 0;
+  planningWeekCount$: Observable<number>;
+  backlogItemCount$: Observable<number>;
+  activeBacklogCount$: Observable<number>;
 
   constructor(
-    private planningService: PlanningService,
-    private backlogService: BacklogService,
+    private store: Store<AppStoreState>,
     private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    this.loadStatistics();
+  ) {
+    this.planningWeekCount$ = this.store.select(PlanningSelectors.selectAllPlanningWeeks).pipe(
+      map(weeks => weeks.length)
+    );
+    this.backlogItemCount$ = this.store.select(BacklogSelectors.selectAllBacklogItems).pipe(
+      map(items => items.length)
+    );
+    this.activeBacklogCount$ = this.store.select(BacklogSelectors.selectAllBacklogItems).pipe(
+      map(items => items.filter(i => i.status === 'InProgress').length)
+    );
   }
 
-  private loadStatistics(): void {
-    this.planningService.getAllPlanningWeeks().subscribe({
-      next: (weeks) => {
-        this.planningWeekCount = weeks.length;
-      },
-      error: () => {
-        this.planningWeekCount = 0;
-      }
-    });
-
-    this.backlogService.getAllBacklogItems().subscribe({
-      next: (items) => {
-        this.backlogItemCount = items.length;
-      },
-      error: () => {
-        this.backlogItemCount = 0;
-      }
-    });
-
-    this.backlogService.getActiveBacklogItems().subscribe({
-      next: (items) => {
-        this.activeBacklogCount = items.length;
-      },
-      error: () => {
-        this.activeBacklogCount = 0;
-      }
-    });
+  ngOnInit(): void {
+    // Statistics are automatically updated via store selectors
   }
 
   navigateTo(path: string): void {

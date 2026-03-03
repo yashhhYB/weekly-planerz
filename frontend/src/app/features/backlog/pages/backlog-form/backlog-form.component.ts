@@ -2,8 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { BacklogService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { CreateBacklogItemRequest, UpdateBacklogItemRequest, BacklogCategory, BacklogStatus } from '../../../../models';
+import { AppStoreState } from '../../../../store';
+import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
+import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 
 @Component({
   selector: 'app-backlog-form',
@@ -94,7 +98,7 @@ import { CreateBacklogItemRequest, UpdateBacklogItemRequest, BacklogCategory, Ba
         </div>
       </form>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -197,7 +201,7 @@ export class BacklogFormComponent implements OnInit {
   form!: FormGroup;
   isEdit = false;
   submitting = false;
-  error: string | null = null;
+  error$: Observable<string | null>;
   private backlogId: string | null = null;
 
   categories = Object.values(BacklogCategory);
@@ -205,11 +209,12 @@ export class BacklogFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private backlogService: BacklogService,
+    private store: Store<AppStoreState>,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.initializeForm();
+    this.error$ = this.store.select(BacklogSelectors.selectBacklogError);
   }
 
   ngOnInit(): void {
@@ -217,7 +222,18 @@ export class BacklogFormComponent implements OnInit {
       if (params['id']) {
         this.isEdit = true;
         this.backlogId = params['id'];
-        this.loadBacklogItem();
+        this.store.select(BacklogSelectors.selectBacklogItemById(params['id'])).subscribe(item => {
+          if (item) {
+            this.form.patchValue({
+              title: item.title,
+              description: item.description,
+              category: item.category,
+              priority: item.priority,
+              estimatedHours: item.estimatedHours,
+              status: item.status
+            });
+          }
+        });
       }
     });
   }
@@ -233,34 +249,12 @@ export class BacklogFormComponent implements OnInit {
     });
   }
 
-  private loadBacklogItem(): void {
-    if (!this.backlogId) return;
-
-    this.backlogService.getBacklogItemById(this.backlogId).subscribe({
-      next: (item) => {
-        this.form.patchValue({
-          title: item.title,
-          description: item.description,
-          category: item.category,
-          priority: item.priority,
-          estimatedHours: item.estimatedHours,
-          status: item.status
-        });
-      },
-      error: (err) => {
-        this.error = 'Failed to load backlog item';
-      }
-    });
-  }
-
   onSubmit(): void {
     if (!this.form.valid) return;
 
     this.submitting = true;
-    this.error = null;
 
     if (this.isEdit && this.backlogId) {
-      // For update, map to UpdateBacklogItemRequest type
       const updateRequest: UpdateBacklogItemRequest = {
         title: this.form.value.title,
         description: this.form.value.description,
@@ -269,17 +263,11 @@ export class BacklogFormComponent implements OnInit {
         status: this.form.value.status || BacklogStatus.Pending,
         priority: this.form.value.priority
       };
-      this.backlogService.updateBacklogItem(this.backlogId, updateRequest).subscribe({
-        next: () => {
-          this.router.navigate(['/backlog', this.backlogId]);
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to update backlog item';
-          this.submitting = false;
-        }
-      });
+      this.store.dispatch(BacklogActions.updateBacklogItem({ 
+        id: this.backlogId, 
+        request: updateRequest 
+      }));
     } else {
-      // For create, use CreateBacklogItemRequest
       const createRequest: CreateBacklogItemRequest = {
         title: this.form.value.title,
         description: this.form.value.description,
@@ -287,15 +275,7 @@ export class BacklogFormComponent implements OnInit {
         estimatedHours: this.form.value.estimatedHours,
         priority: this.form.value.priority
       };
-      this.backlogService.createBacklogItem(createRequest).subscribe({
-        next: (item) => {
-          this.router.navigate(['/backlog', item.id]);
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to create backlog item';
-          this.submitting = false;
-        }
-      });
+      this.store.dispatch(BacklogActions.createBacklogItem({ request: createRequest }));
     }
   }
 

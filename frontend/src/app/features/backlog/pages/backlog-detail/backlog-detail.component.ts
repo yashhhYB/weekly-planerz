@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { BacklogService } from '../../../../core/services';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { BacklogItem } from '../../../../models';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { AppStoreState } from '../../../../store';
+import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
+import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 
 @Component({
   selector: 'app-backlog-detail',
@@ -21,11 +23,11 @@ import { takeUntil } from 'rxjs/operators';
         </div>
       </div>
 
-      <div *ngIf="loading" class="loading">
+      <div *ngIf="loading$ | async" class="loading">
         <p>Loading backlog item details...</p>
       </div>
 
-      <div *ngIf="!loading && backlogItem" class="item-details">
+      <div *ngIf="(loading$ | async) === false && (backlogItem$ | async) as backlogItem" class="item-details">
         <h1>{{ backlogItem.title }}</h1>
         
         <div class="item-meta">
@@ -73,7 +75,7 @@ import { takeUntil } from 'rxjs/operators';
         </div>
       </div>
 
-      <div *ngIf="error" class="error-message">
+      <div *ngIf="error$ | async as error" class="error-message">
         <p>{{ error }}</p>
       </div>
     </div>
@@ -275,46 +277,27 @@ import { takeUntil } from 'rxjs/operators';
     }
   `]
 })
-export class BacklogDetailComponent implements OnInit, OnDestroy {
-  backlogItem: BacklogItem | null = null;
-  loading = true;
-  error: string | null = null;
-  private destroy$ = new Subject<void>();
+export class BacklogDetailComponent implements OnInit {
+  backlogItem$: Observable<BacklogItem | undefined>;
+  loading$: Observable<boolean>;
+  error$: Observable<string | null>;
   private backlogId: string = '';
 
   constructor(
-    private backlogService: BacklogService,
+    private store: Store<AppStoreState>,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    this.backlogItem$ = new Observable();
+    this.loading$ = this.store.select(BacklogSelectors.selectBacklogLoading);
+    this.error$ = this.store.select(BacklogSelectors.selectBacklogError);
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.backlogId = params['id'];
-      this.loadBacklogItem();
+      this.backlogItem$ = this.store.select(BacklogSelectors.selectBacklogItemById(this.backlogId));
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private loadBacklogItem(): void {
-    this.loading = true;
-    this.error = null;
-    this.backlogService.getBacklogItemById(this.backlogId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (item) => {
-          this.backlogItem = item;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = err.message || 'Failed to load backlog item';
-          this.loading = false;
-        }
-      });
   }
 
   navigateToEdit(): void {
@@ -323,32 +306,13 @@ export class BacklogDetailComponent implements OnInit, OnDestroy {
 
   deleteItem(): void {
     if (confirm('Are you sure you want to delete this backlog item?')) {
-      this.backlogService.deleteBacklogItem(this.backlogId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.router.navigate(['/backlog']);
-          },
-          error: (err) => {
-            this.error = 'Failed to delete backlog item';
-          }
-        });
+      this.store.dispatch(BacklogActions.deleteBacklogItem({ id: this.backlogId }));
     }
   }
 
   archiveItem(): void {
     if (confirm('Archive this backlog item?')) {
-      this.backlogService.archiveBacklogItem(this.backlogId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (item) => {
-            this.backlogItem = item;
-            alert('Backlog item archived successfully!');
-          },
-          error: (err) => {
-            this.error = 'Failed to archive backlog item';
-          }
-        });
+      this.store.dispatch(BacklogActions.archiveBacklogItem({ id: this.backlogId }));
     }
   }
 
