@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideMockStore } from '@ngrx/store/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
 import { Store } from '@ngrx/store';
 import { Observable, of, throwError } from 'rxjs';
 import { PlanningEffects } from './planning.effects';
@@ -10,7 +10,7 @@ import { PlanningWeek } from '../../models';
 describe('PlanningEffects', () => {
   let effects: PlanningEffects;
   let planningService: jasmine.SpyObj<PlanningService>;
-  let store: any;
+  let actions$: Observable<any>;
 
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
@@ -34,17 +34,18 @@ describe('PlanningEffects', () => {
       'deletePlanningWeek'
     ]);
 
+    actions$ = of({ type: 'INIT' });
+
     TestBed.configureTestingModule({
       providers: [
         PlanningEffects,
-        provideMockStore({ initialState: {} }),
+        provideMockActions(() => actions$),
         { provide: PlanningService, useValue: planningServiceSpy }
       ]
     });
 
     effects = TestBed.inject(PlanningEffects);
     planningService = TestBed.inject(PlanningService) as jasmine.SpyObj<PlanningService>;
-    store = TestBed.inject(Store);
   });
 
   it('should be created', () => {

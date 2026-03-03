@@ -107,9 +107,16 @@ describe('PlanningListComponent', () => {
       if (selector === PlanningSelectors.selectPlanningLoading) {
         return of(true);
       }
+      if (selector === PlanningSelectors.selectAllPlanningWeeks) {
+        return of([]);
+      }
+      if (selector === PlanningSelectors.selectPlanningError) {
+        return of(null);
+      }
       return of(null);
     });
-
+    fixture = TestBed.createComponent(PlanningListComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     component.loading$.subscribe(loading => {
       expect(loading).toBe(true);
@@ -123,9 +130,16 @@ describe('PlanningListComponent', () => {
       if (selector === PlanningSelectors.selectPlanningError) {
         return of(errorMsg);
       }
+      if (selector === PlanningSelectors.selectAllPlanningWeeks) {
+        return of([]);
+      }
+      if (selector === PlanningSelectors.selectPlanningLoading) {
+        return of(false);
+      }
       return of(null);
     });
-
+    fixture = TestBed.createComponent(PlanningListComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     component.error$.subscribe(error => {
       expect(error).toBe(errorMsg);

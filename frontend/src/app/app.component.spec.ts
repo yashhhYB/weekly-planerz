@@ -1,23 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
-  let router: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        { provide: Router, useValue: routerSpy }
+        provideRouter([])
       ]
     }).compileComponents();
 
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
   });

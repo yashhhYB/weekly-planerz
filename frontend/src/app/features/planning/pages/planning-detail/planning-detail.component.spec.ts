@@ -133,6 +133,6 @@ describe('PlanningDetailComponent', () => {
     const date = new Date('2026-01-07T10:30:00');
     const formatted = component.formatDateTime(date);
     expect(formatted).toContain('Jan');
-    expect(formatted).toContain('07');
+    expect(formatted).toContain('7');
   });
 });

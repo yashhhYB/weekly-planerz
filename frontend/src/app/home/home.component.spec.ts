@@ -142,8 +142,13 @@ describe('HomeComponent', () => {
       if (selector === PlanningSelectors.selectAllPlanningWeeks) {
         return of([]);
       }
+      if (selector === BacklogSelectors.selectAllBacklogItems) {
+        return of([]);
+      }
       return of([]);
     });
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     component.planningWeekCount$.subscribe(count => {
       expect(count).toBe(0);
@@ -156,8 +161,13 @@ describe('HomeComponent', () => {
       if (selector === BacklogSelectors.selectAllBacklogItems) {
         return of([]);
       }
+      if (selector === PlanningSelectors.selectAllPlanningWeeks) {
+        return of([]);
+      }
       return of([]);
     });
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     component.backlogItemCount$.subscribe(count => {
       expect(count).toBe(0);
