@@ -101,6 +101,57 @@ public class PlanningController : ControllerBase
     }
 
     /// <summary>
+    /// Start a planning week (Setup -> InProgress)
+    /// </summary>
+    [HttpPost("{id:guid}/start")]
+    [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Start planning week {Id} called", id);
+        var result = await _mediator.Send(new StartPlanningWeekCommand(id), cancellationToken);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Complete a planning week (InProgress -> Completed)
+    /// </summary>
+    [HttpPost("{id:guid}/complete")]
+    [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Complete planning week {Id} called", id);
+        var result = await _mediator.Send(new CompletePlanningWeekCommand(id), cancellationToken);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Archive a planning week (Completed -> Archived)
+    /// </summary>
+    [HttpPost("{id:guid}/archive")]
+    [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Archive(Guid id, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Archive planning week {Id} called", id);
+        var result = await _mediator.Send(new ArchivePlanningWeekCommand(id), cancellationToken);
+
+        if (!result.Success)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Delete a planning week
     /// </summary>
     [HttpDelete("{id:guid}")]
@@ -115,5 +166,94 @@ public class PlanningController : ControllerBase
             return NotFound(result);
 
         return NoContent();
+    }
+
+    // ──────────── Week Members ────────────
+
+    /// <summary>
+    /// Add/update members assigned to a planning week
+    /// </summary>
+    [HttpPost("{id:guid}/members")]
+    public async Task<IActionResult> AddMembers(Guid id, [FromBody] List<Guid> memberIds, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new AddWeekMembersCommand(id, memberIds), ct);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get all members assigned to a planning week
+    /// </summary>
+    [HttpGet("{id:guid}/members")]
+    public async Task<IActionResult> GetMembers(Guid id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetWeekMembersQuery(id), ct);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get a specific week member with their tasks
+    /// </summary>
+    [HttpGet("members/{weekMemberId:guid}")]
+    public async Task<IActionResult> GetWeekMember(Guid weekMemberId, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetWeekMemberByIdQuery(weekMemberId), ct);
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Assign a backlog task to a week member
+    /// </summary>
+    [HttpPost("members/{weekMemberId:guid}/tasks")]
+    public async Task<IActionResult> AssignTask(Guid weekMemberId, [FromBody] AssignTaskRequest request, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new AssignTaskCommand(weekMemberId, request), ct);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Remove an assigned task
+    /// </summary>
+    [HttpDelete("tasks/{taskId:guid}")]
+    public async Task<IActionResult> RemoveTask(Guid taskId, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new RemoveTaskCommand(taskId), ct);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Submit a member's plan (must total 30 hours)
+    /// </summary>
+    [HttpPost("members/{weekMemberId:guid}/submit")]
+    public async Task<IActionResult> SubmitPlan(Guid weekMemberId, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new SubmitMemberPlanCommand(weekMemberId), ct);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Update task progress (actual hours + progress %)
+    /// </summary>
+    [HttpPut("tasks/{taskId:guid}/progress")]
+    public async Task<IActionResult> UpdateProgress(Guid taskId, [FromBody] UpdateProgressRequest request, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new UpdateTaskProgressCommand(taskId, request), ct);
+        if (!result.Success) return BadRequest(result);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get dashboard data for a planning week
+    /// </summary>
+    [HttpGet("{id:guid}/dashboard")]
+    public async Task<IActionResult> GetDashboard(Guid id, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetDashboardQuery(id), ct);
+        if (!result.Success) return NotFound(result);
+        return Ok(result);
     }
 }

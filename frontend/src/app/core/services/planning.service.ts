@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   PlanningWeek,
   PlanningWeekDto,
+  PlanningStatus,
   CreatePlanningWeekRequest,
   UpdatePlanningWeekRequest,
   ApiResponse
@@ -20,8 +21,6 @@ import {
 })
 export class PlanningService {
   private apiUrl = `${environment.apiUrl}/planning`;
-  private planningWeeksSubject = new BehaviorSubject<PlanningWeek[]>([]);
-  public planningWeeks$ = this.planningWeeksSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -34,9 +33,7 @@ export class PlanningService {
       .pipe(
         map(response => {
           if (response.success && response.data) {
-            const weeks = response.data.map(dto => this.mapDtoToDomain(dto));
-            this.planningWeeksSubject.next(weeks);
-            return weeks;
+            return response.data.map(dto => this.mapDtoToDomain(dto));
           }
           return [];
         })
@@ -70,7 +67,7 @@ export class PlanningService {
           if (response.success && response.data) {
             return this.mapDtoToDomain(response.data);
           }
-          throw new Error('Failed to create planning week');
+          throw new Error(response.message || 'Failed to create planning week');
         })
       );
   }
@@ -89,7 +86,7 @@ export class PlanningService {
           if (response.success && response.data) {
             return this.mapDtoToDomain(response.data);
           }
-          throw new Error('Failed to update planning week');
+          throw new Error(response.message || 'Failed to update planning week');
         })
       );
   }
@@ -113,6 +110,45 @@ export class PlanningService {
   /**
    * Delete a planning week
    */
+  startPlanningWeek(id: string): Observable<PlanningWeek> {
+    return this.http
+      .post<ApiResponse<PlanningWeekDto>>(`${this.apiUrl}/${id}/start`, {})
+      .pipe(
+        map(response => {
+          if (response.success && response.data) {
+            return this.mapDtoToDomain(response.data);
+          }
+          throw new Error(response.message || 'Failed to start planning week');
+        })
+      );
+  }
+
+  completePlanningWeek(id: string): Observable<PlanningWeek> {
+    return this.http
+      .post<ApiResponse<PlanningWeekDto>>(`${this.apiUrl}/${id}/complete`, {})
+      .pipe(
+        map(response => {
+          if (response.success && response.data) {
+            return this.mapDtoToDomain(response.data);
+          }
+          throw new Error(response.message || 'Failed to complete planning week');
+        })
+      );
+  }
+
+  archivePlanningWeek(id: string): Observable<PlanningWeek> {
+    return this.http
+      .post<ApiResponse<PlanningWeekDto>>(`${this.apiUrl}/${id}/archive`, {})
+      .pipe(
+        map(response => {
+          if (response.success && response.data) {
+            return this.mapDtoToDomain(response.data);
+          }
+          throw new Error(response.message || 'Failed to archive planning week');
+        })
+      );
+  }
+
   deletePlanningWeek(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
@@ -123,15 +159,15 @@ export class PlanningService {
   private mapDtoToDomain(dto: PlanningWeekDto): PlanningWeek {
     return {
       id: dto.id,
-      weekStartDate: new Date(dto.weekStartDate),
-      weekEndDate: new Date(dto.weekEndDate),
-      goals: dto.goals,
-      keyActivities: dto.keyActivities,
-      reflection: dto.reflection,
-      healthScore: dto.healthScore,
-      productivity: dto.productivity,
-      createdAt: new Date(dto.createdAt),
-      updatedAt: new Date(dto.updatedAt)
+      planningDate: new Date(dto.planningDate),
+      startDate: new Date(dto.startDate),
+      endDate: new Date(dto.endDate),
+      status: dto.status as PlanningStatus,
+      isFrozen: dto.isFrozen,
+      clientPercent: dto.clientPercent,
+      techDebtPercent: dto.techDebtPercent,
+      rndPercent: dto.rndPercent,
+      createdAt: new Date(dto.createdAt)
     };
   }
 }

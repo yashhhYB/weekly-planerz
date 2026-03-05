@@ -3,13 +3,23 @@ import { Routes } from '@angular/router';
 export const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {
-    path: 'dashboard',
+    path: 'setup',
+    loadComponent: () => import('./features/team/pages/team-setup/team-setup.component').then(m => m.TeamSetupComponent),
+    data: { title: 'Team Setup' }
+  },
+  {
+    path: 'home',
     loadComponent: () => import('./home/home.component').then(m => m.HomeComponent),
-    data: { title: 'Dashboard' }
+    data: { title: 'Home' }
+  },
+  {
+    path: 'dashboard',
+    redirectTo: 'home',
+    pathMatch: 'full'
   },
   {
     path: 'planning',
@@ -22,7 +32,17 @@ export const appRoutes: Routes = [
     data: { title: 'Backlog' }
   },
   {
+    path: 'team',
+    loadChildren: () => import('./features/team/team.routes').then(m => m.TEAM_ROUTES),
+    data: { title: 'Team' }
+  },
+  {
+    path: 'weeks',
+    loadComponent: () => import('./features/planning/pages/past-weeks/past-weeks.component').then(m => m.PastWeeksComponent),
+    data: { title: 'Past Weeks' }
+  },
+  {
     path: '**',
-    redirectTo: 'dashboard'
+    redirectTo: 'home'
   }
 ];

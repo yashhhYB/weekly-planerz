@@ -32,5 +32,6 @@ public class UpdateBacklogItemRequest
 {
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public int Category { get; set; }
     public decimal EstimatedHours { get; set; }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { PlanningWeek } from '../../../../models';
+import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { AppStoreState } from '../../../../store';
 import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
 import * as PlanningActions from '../../../../store/planning/planning.actions';
@@ -13,164 +13,145 @@ import * as PlanningActions from '../../../../store/planning/planning.actions';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="planning-list-container">
-      <div class="header">
-        <h1>Planning Weeks</h1>
-        <button (click)="navigateToCreate()" class="btn btn-primary">
-          + New Planning Week
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <h1>Planning Weeks</h1>
+          <p class="page-desc">Create and manage your weekly planning cycles</p>
+        </div>
+        <button (click)="navigateToCreate()" class="btn-create">
+          <span>+</span> New Week
         </button>
       </div>
 
-      <div *ngIf="loading$ | async" class="loading">
-        <p>Loading planning weeks...</p>
+      <div *ngIf="loading$ | async" class="loading">Loading planning weeks...</div>
+
+      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length === 0" class="empty">
+        <div class="empty-icon">📋</div>
+        <p>No planning weeks yet</p>
+        <small>Create your first planning week to get started</small>
       </div>
 
-      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length === 0" class="empty-state">
-        <p>No planning weeks found. Create your first planning week to get started!</p>
-      </div>
-
-      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length! > 0" class="planning-grid">
-        <div *ngFor="let week of planningWeeks$ | async" class="planning-card" (click)="navigateToDetail(week.id)">
-          <h3>{{ formatDate(week.weekStartDate) }}</h3>
-          <p class="week-range">{{ formatDate(week.weekStartDate) }} - {{ formatDate(week.weekEndDate) }}</p>
-          <div class="metrics">
-            <div class="metric">
-              <span class="label">Health Score:</span>
-              <span class="value">{{ week.healthScore }}/10</span>
+      <div *ngIf="(loading$ | async) === false && (planningWeeks$ | async)?.length! > 0" class="cards-grid">
+        <div *ngFor="let week of planningWeeks$ | async" class="week-card" (click)="navigateToDetail(week.id)">
+          <div class="card-top">
+            <span class="status-badge" [ngClass]="'s-' + week.status">{{ getStatusLabel(week.status) }}</span>
+            <span *ngIf="week.isFrozen" class="frozen-badge">🔒 Frozen</span>
+          </div>
+          <h3>{{ formatDate(week.planningDate) }}</h3>
+          <p class="date-range">{{ formatDate(week.startDate) }} → {{ formatDate(week.endDate) }}</p>
+          <div class="alloc-bars">
+            <div class="alloc-row">
+              <span class="alloc-label">Client</span>
+              <div class="alloc-track"><div class="alloc-fill client" [style.width.%]="week.clientPercent"></div></div>
+              <span class="alloc-val">{{ week.clientPercent }}%</span>
             </div>
-            <div class="metric">
-              <span class="label">Productivity:</span>
-              <span class="value">{{ week.productivity }}%</span>
+            <div class="alloc-row">
+              <span class="alloc-label">Tech Debt</span>
+              <div class="alloc-track"><div class="alloc-fill techdebt" [style.width.%]="week.techDebtPercent"></div></div>
+              <span class="alloc-val">{{ week.techDebtPercent }}%</span>
+            </div>
+            <div class="alloc-row">
+              <span class="alloc-label">R&D</span>
+              <div class="alloc-track"><div class="alloc-fill rnd" [style.width.%]="week.rndPercent"></div></div>
+              <span class="alloc-val">{{ week.rndPercent }}%</span>
             </div>
           </div>
-          <button class="btn btn-small" (click)="navigateToEdit(week.id, $event)">Edit</button>
+          <div class="card-footer">
+            <button class="btn-edit" (click)="navigateToEdit(week.id, $event)" [disabled]="week.isFrozen">Edit</button>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="error$ | async as error" class="error-message">
-        <p>{{ error }}</p>
-      </div>
+      <div *ngIf="error$ | async as error" class="error-bar">{{ error }}</div>
     </div>
   `,
   styles: [`
-    .planning-list-container {
-      padding: 20px;
-    }
+    .page { padding: 32px 0; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+    .page-header h1 { margin: 0 0 4px 0; font-size: 28px; color: #f0f6fc; }
+    .page-desc { margin: 0; color: #8b949e; font-size: 14px; }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
+    .btn-create {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 20px; background: #238636; color: white;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+      transition: background 0.2s;
     }
+    .btn-create:hover { background: #2ea043; }
+    .btn-create span { font-size: 18px; }
 
-    h1 {
-      margin: 0;
-      color: #333;
-    }
+    .loading { text-align: center; padding: 60px; color: #8b949e; }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
+    .empty { text-align: center; padding: 80px 20px; color: #8b949e; }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty p { margin: 0 0 4px 0; font-size: 18px; color: #e1e4e8; }
+    .empty small { color: #8b949e; }
 
-    .btn-primary {
-      background: #1976d2;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #1565c0;
-    }
-
-    .btn-small {
-      padding: 5px 10px;
-      font-size: 12px;
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-    }
-
-    .btn-small:hover {
-      background: #e0e0e0;
-    }
-
-    .loading, .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-    .planning-grid {
+    .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
     }
 
-    .planning-card {
-      border: 1px solid #ddd;
+    .week-card {
+      background: #161b22;
+      border: 1px solid #30363d;
       border-radius: 8px;
       padding: 20px;
       cursor: pointer;
-      transition: all 0.3s;
-      background: white;
+      transition: all 0.2s;
     }
+    .week-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
 
-    .planning-card:hover {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
-    }
+    .card-top { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 
-    .planning-card h3 {
-      margin: 0 0 10px 0;
-      color: #1976d2;
+    .status-badge {
+      padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
     }
+    .s-1 { background: rgba(210,153,34,0.2); color: #d29922; }
+    .s-2 { background: rgba(31,111,235,0.2); color: #58a6ff; }
+    .s-3 { background: rgba(35,134,54,0.2); color: #3fb950; }
+    .s-4 { background: rgba(139,148,158,0.2); color: #8b949e; }
+    .frozen-badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; background: rgba(56,182,255,0.15); color: #79c0ff; }
 
-    .week-range {
-      font-size: 12px;
-      color: #999;
-      margin-bottom: 15px;
-    }
+    .week-card h3 { margin: 0 0 4px 0; color: #f0f6fc; font-size: 18px; }
+    .date-range { margin: 0 0 16px 0; font-size: 13px; color: #8b949e; }
 
-    .metrics {
-      margin-bottom: 15px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #eee;
-    }
+    .alloc-bars { margin-bottom: 16px; }
+    .alloc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .alloc-label { min-width: 65px; font-size: 12px; color: #8b949e; }
+    .alloc-track { flex: 1; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+    .alloc-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .alloc-fill.client { background: #1f6feb; }
+    .alloc-fill.techdebt { background: #da3633; }
+    .alloc-fill.rnd { background: #238636; }
+    .alloc-val { min-width: 35px; text-align: right; font-size: 13px; color: #e1e4e8; font-weight: 600; }
 
-    .metric {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
+    .card-footer { border-top: 1px solid #21262d; padding-top: 12px; }
 
-    .label {
-      color: #666;
-      font-weight: 500;
+    .btn-edit {
+      padding: 6px 14px; background: #21262d; color: #e1e4e8;
+      border: 1px solid #30363d; border-radius: 6px; cursor: pointer; font-size: 12px;
+      transition: all 0.2s;
     }
+    .btn-edit:hover:not(:disabled) { background: #30363d; border-color: #58a6ff; }
+    .btn-edit:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .value {
-      color: #1976d2;
-      font-weight: bold;
-    }
-
-    .error-message {
-      background: #ffebee;
-      color: #c62828;
-      padding: 15px;
-      border-radius: 4px;
-      margin-top: 20px;
-    }
+    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
   `]
 })
 export class PlanningListComponent implements OnInit {
   planningWeeks$: Observable<PlanningWeek[]>;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
+
+  private statusLabels: Record<number, string> = {
+    [PlanningStatus.Setup]: 'Setup',
+    [PlanningStatus.InProgress]: 'In Progress',
+    [PlanningStatus.Completed]: 'Completed',
+    [PlanningStatus.Archived]: 'Archived'
+  };
 
   constructor(
     private store: Store<AppStoreState>,
@@ -185,12 +166,14 @@ export class PlanningListComponent implements OnInit {
     this.store.dispatch(PlanningActions.loadPlanningWeeks({ skip: 0, take: 50 }));
   }
 
+  getStatusLabel(status: PlanningStatus): string {
+    return this.statusLabels[status] || 'Unknown';
+  }
+
   formatDate(date: Date): string {
-    return date ? date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }) : '';
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   navigateToCreate(): void {

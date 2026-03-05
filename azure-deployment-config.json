@@ -1,0 +1,127 @@
+{
+  "deployment": {
+    "timestamp": "2026-03-03T00:00:00Z",
+    "status": "60% complete - Database ready, App Service pending quota",
+    "region": "North Europe",
+    "subscriptionId": "c20e62ae-20c1-48a0-b194-b4c373d55af8"
+  },
+  "resources": {
+    "resourceGroup": {
+      "name": "weeklyplanner-rg",
+      "location": "eastus",
+      "status": "Created"
+    },
+    "postgresqlServer": {
+      "name": "weeklyplanner-db-prod",
+      "fqdn": "weeklyplanner-db-prod.postgres.database.azure.com",
+      "location": "North Europe",
+      "version": "16",
+      "tier": "Burstable",
+      "sku": "Standard_B1ms",
+      "storage": "32GB",
+      "state": "Ready",
+      "status": "Created"
+    },
+    "database": {
+      "name": "weeklyplanner_prod",
+      "charset": "UTF8",
+      "collation": "en_US.utf8",
+      "status": "Ready for migrations"
+    }
+  },
+  "credentials": {
+    "postgresqlUsername": "postgres",
+    "postgresqlPassword": "WeeklyPlanner@SecurePass2024",
+    "note": "Store in Azure Key Vault before production use"
+  },
+  "connectionString": "Host=weeklyplanner-db-prod.postgres.database.azure.com;Port=5432;Database=weeklyplanner_prod;Username=postgres;Password=WeeklyPlanner@SecurePass2024;SslMode=Require",
+  "pending": {
+    "appServicePlan": {
+      "status": "Blocked - Quota limit for Basic VMs (requires increase)",
+      "requestUrl": "https://portal.azure.com/#view/Microsoft_Azure_Quota",
+      "currentLimit": 0,
+      "required": 1,
+      "estimatedApprovalTime": "1-2 hours"
+    },
+    "appService": {
+      "status": "Waiting for App Service Plan",
+      "plannedName": "weeklyplanner-api",
+      "plannedRuntime": "DOTNETCORE|8.0"
+    },
+    "staticWebApp": {
+      "status": "Ready to deploy",
+      "plannedName": "weeklyplanner-web",
+      "plannedSku": "Free"
+    }
+  },
+  "deploymentSteps": [
+    {
+      "step": 1,
+      "task": "Request quota increase",
+      "status": "REQUIRED BEFORE CONTINUING",
+      "command": "Go to Azure Portal > Quotas > Request increase"
+    },
+    {
+      "step": 2,
+      "task": "Create App Service Plan",
+      "status": "Pending quota approval",
+      "command": "az appservice plan create --name weeklyplanner-plan --resource-group weeklyplanner-rg --sku B1 --is-linux"
+    },
+    {
+      "step": 3,
+      "task": "Create App Service",
+      "status": "Pending step 2",
+      "command": "az webapp create --resource-group weeklyplanner-rg --plan weeklyplanner-plan --name weeklyplanner-api --runtime DOTNETCORE|8.0"
+    },
+    {
+      "step": 4,
+      "task": "Create Static Web App",
+      "status": "Ready",
+      "command": "az staticwebapp create --name weeklyplanner-web --resource-group weeklyplanner-rg --location northeurope --sku Free"
+    },
+    {
+      "step": 5,
+      "task": "Run EF Core migrations",
+      "status": "Ready (database exists)",
+      "command": "cd d:\\Time-Management2\\backend && dotnet ef database update --configuration Release"
+    },
+    {
+      "step": 6,
+      "task": "Build .NET backend",
+      "status": "Ready",
+      "command": "dotnet build --configuration Release && dotnet publish --configuration Release --output ./publish"
+    },
+    {
+      "step": 7,
+      "task": "Deploy backend to App Service",
+      "status": "Pending step 3",
+      "command": "az webapp deployment source config-zip --resource-group weeklyplanner-rg --name weeklyplanner-api --src ./publish.zip"
+    },
+    {
+      "step": 8,
+      "task": "Build Angular frontend",
+      "status": "Ready",
+      "command": "cd frontend && ng build --configuration production"
+    },
+    {
+      "step": 9,
+      "task": "Deploy frontend to Static Web App",
+      "status": "Pending step 4",
+      "command": "az staticwebapp upload --name weeklyplanner-web --source dist/weekly-planner/browser"
+    }
+  ],
+  "filesUpdated": [
+    {
+      "file": "backend/src/WeeklyPlanner.API/appsettings.Production.json",
+      "change": "Added Azure PostgreSQL connection string",
+      "updated": true
+    }
+  ],
+  "estimatedCosts": {
+    "postgresqlServer": "$25/month",
+    "appServicePlanB1": "$12.50/month",
+    "staticWebAppFree": "$0",
+    "total": "~$37.50/month"
+  },
+  "nextAction": "Request Azure quota increase for App Service from https://portal.azure.com/#view/Microsoft_Azure_Quota"
+}

@@ -96,6 +96,51 @@ export const deletePlanningWeekFailure = createAction(
   props<{ error: string }>()
 );
 
+export const startPlanningWeek = createAction(
+  '[Planning Detail] Start Planning Week',
+  props<{ id: string }>()
+);
+
+export const startPlanningWeekSuccess = createAction(
+  '[Planning Detail] Start Planning Week Success',
+  props<{ week: PlanningWeek }>()
+);
+
+export const startPlanningWeekFailure = createAction(
+  '[Planning Detail] Start Planning Week Failure',
+  props<{ error: string }>()
+);
+
+export const completePlanningWeek = createAction(
+  '[Planning Detail] Complete Planning Week',
+  props<{ id: string }>()
+);
+
+export const completePlanningWeekSuccess = createAction(
+  '[Planning Detail] Complete Planning Week Success',
+  props<{ week: PlanningWeek }>()
+);
+
+export const completePlanningWeekFailure = createAction(
+  '[Planning Detail] Complete Planning Week Failure',
+  props<{ error: string }>()
+);
+
+export const archivePlanningWeek = createAction(
+  '[Planning Detail] Archive Planning Week',
+  props<{ id: string }>()
+);
+
+export const archivePlanningWeekSuccess = createAction(
+  '[Planning Detail] Archive Planning Week Success',
+  props<{ week: PlanningWeek }>()
+);
+
+export const archivePlanningWeekFailure = createAction(
+  '[Planning Detail] Archive Planning Week Failure',
+  props<{ error: string }>()
+);
+
 export const clearPlanningError = createAction(
   '[Planning] Clear Error'
 );

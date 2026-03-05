@@ -31,10 +31,11 @@ public class BacklogItem
         IsArchived = true;
     }
 
-    public void Update(string title, string description, decimal estimatedHours)
+    public void Update(string title, string description, int category, decimal estimatedHours)
     {
         Title = title;
         Description = description;
+        Category = category;
         EstimatedHours = estimatedHours;
     }
 }

@@ -7,7 +7,7 @@ import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 import { Router, ActivatedRoute } from '@angular/router';
-import { BacklogCategory, BacklogStatus } from '../../../../models';
+import { BacklogCategory } from '../../../../models';
 
 describe('BacklogFormComponent', () => {
   let component: BacklogFormComponent;
@@ -38,7 +38,15 @@ describe('BacklogFormComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     route = TestBed.inject(ActivatedRoute);
 
-    storeSpy.select.and.returnValue(of(null));
+    storeSpy.select.and.callFake((selector: any) => {
+      if (selector === BacklogSelectors.selectBacklogError) {
+        return of(null);
+      }
+      if (selector === BacklogSelectors.selectBacklogLoading) {
+        return of(false);
+      }
+      return of(null);
+    });
 
     fixture = TestBed.createComponent(BacklogFormComponent);
     component = fixture.componentInstance;
@@ -54,27 +62,20 @@ describe('BacklogFormComponent', () => {
     expect(component.form).toBeDefined();
     expect(component.form.get('title')).toBeDefined();
     expect(component.form.get('category')).toBeDefined();
-    expect(component.form.get('priority')).toBeDefined();
+    expect(component.form.get('estimatedHours')).toBeDefined();
   });
 
-  it('should have valid categories', () => {
+  it('should have valid category options', () => {
     fixture.detectChanges();
-    expect(component.categories.length).toBeGreaterThan(0);
-    expect(component.categories).toContain(BacklogCategory.Work);
-  });
-
-  it('should have valid statuses', () => {
-    fixture.detectChanges();
-    expect(component.statuses.length).toBeGreaterThan(0);
-    expect(component.statuses).toContain(BacklogStatus.Pending);
+    expect(component.categoryOptions.length).toBe(3);
+    expect(component.categoryOptions[0].value).toBe(BacklogCategory.ClientFocused);
   });
 
   it('should validate required fields', () => {
     fixture.detectChanges();
     component.form.patchValue({
       title: '',
-      category: '',
-      priority: 0
+      category: 0
     });
     expect(component.form.valid).toBe(false);
   });
@@ -84,25 +85,21 @@ describe('BacklogFormComponent', () => {
     component.form.patchValue({
       title: 'Test Task',
       description: 'Test description',
-      category: 'Development',
-      priority: 3,
+      category: BacklogCategory.ClientFocused,
       estimatedHours: 5
     });
     expect(component.form.valid).toBe(true);
   });
 
-  it('should validate priority range (1-5)', () => {
+  it('should validate category must be at least 1', () => {
     fixture.detectChanges();
-    const priority = component.form.get('priority');
+    const category = component.form.get('category');
     
-    priority?.setValue(0);
-    expect(priority?.valid).toBe(false);
+    category?.setValue(0);
+    expect(category?.valid).toBe(false);
     
-    priority?.setValue(6);
-    expect(priority?.valid).toBe(false);
-    
-    priority?.setValue(3);
-    expect(priority?.valid).toBe(true);
+    category?.setValue(BacklogCategory.ClientFocused);
+    expect(category?.valid).toBe(true);
   });
 
   it('should validate estimated hours range (0-168)', () => {
@@ -123,8 +120,8 @@ describe('BacklogFormComponent', () => {
     fixture.detectChanges();
     component.form.patchValue({
       title: 'Test Task',
-      category: 'Development',
-      priority: 3,
+      description: 'Test description',
+      category: BacklogCategory.ClientFocused,
       estimatedHours: 5
     });
     component.onSubmit();
@@ -135,7 +132,7 @@ describe('BacklogFormComponent', () => {
     fixture.detectChanges();
     component.form.patchValue({
       title: '',
-      category: ''
+      category: 0
     });
     component.onSubmit();
     expect(store.dispatch).not.toHaveBeenCalled();
@@ -156,8 +153,8 @@ describe('BacklogFormComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/backlog', '1']);
   });
 
-  it('should set default status to Pending in create mode', () => {
+  it('should default category to 0 (unselected) in create mode', () => {
     fixture.detectChanges();
-    expect(component.form.get('status')?.value).toBe(BacklogStatus.Pending);
+    expect(component.form.get('category')?.value).toBe(0);
   });
 });

@@ -1,19 +1,19 @@
 import * as fromPlanningSelectors from './planning.selectors';
 import { PlanningState } from './planning.reducer';
-import { PlanningWeek } from '../../models';
+import { PlanningWeek, PlanningStatus } from '../../models';
 
 describe('PlanningSelectors', () => {
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: new Date('2026-01-07'),
-    weekEndDate: new Date('2026-01-13'),
-    goals: 'Test goals',
-    keyActivities: 'Test activities',
-    reflection: 'Test reflection',
-    healthScore: 8,
-    productivity: 85,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    planningDate: new Date('2026-01-07'),
+    startDate: new Date('2026-01-08'),
+    endDate: new Date('2026-01-13'),
+    status: PlanningStatus.InProgress,
+    isFrozen: false,
+    clientPercent: 34,
+    techDebtPercent: 33,
+    rndPercent: 33,
+    createdAt: new Date()
   };
 
   const mockState: PlanningState = {

@@ -9,20 +9,30 @@ export interface ApiResponse<T> {
 }
 
 /**
+ * Planning Status enum matching backend PlanningStatus
+ */
+export enum PlanningStatus {
+  Setup = 1,
+  InProgress = 2,
+  Completed = 3,
+  Archived = 4
+}
+
+/**
  * Planning Week domain model
- * Represents a weekly plan with planning details
+ * Matches backend PlanningWeekDto exactly
  */
 export interface PlanningWeek {
   id: string;
-  weekStartDate: Date;
-  weekEndDate: Date;
-  goals: string;
-  keyActivities: string;
-  reflection: string;
-  healthScore: number;
-  productivity: number;
+  planningDate: Date;
+  startDate: Date;
+  endDate: Date;
+  status: PlanningStatus;
+  isFrozen: boolean;
+  clientPercent: number;
+  techDebtPercent: number;
+  rndPercent: number;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -30,36 +40,32 @@ export interface PlanningWeek {
  */
 export interface PlanningWeekDto {
   id: string;
-  weekStartDate: string; // ISO date string
-  weekEndDate: string;
-  goals: string;
-  keyActivities: string;
-  reflection: string;
-  healthScore: number;
-  productivity: number;
+  planningDate: string;
+  startDate: string;
+  endDate: string;
+  status: number;
+  isFrozen: boolean;
+  clientPercent: number;
+  techDebtPercent: number;
+  rndPercent: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 /**
- * Create Planning Week request
+ * Create Planning Week request - matches backend CreatePlanningWeekRequest
  */
 export interface CreatePlanningWeekRequest {
-  weekStartDate: string; // ISO date - must be Tuesday
-  goals: string;
-  keyActivities: string;
-  reflection?: string; // Optional on create
-  healthScore: number; // 1-10
-  productivity: number; // percentage
+  planningDate: string; // ISO date - must be Tuesday
+  clientPercent: number;
+  techDebtPercent: number;
+  rndPercent: number;
 }
 
 /**
- * Update Planning Week request
+ * Update Planning Week request - matches backend UpdatePlanningWeekRequest
  */
 export interface UpdatePlanningWeekRequest {
-  goals: string;
-  keyActivities: string;
-  reflection: string;
-  healthScore: number;
-  productivity: number;
+  clientPercent: number;
+  techDebtPercent: number;
+  rndPercent: number;
 }

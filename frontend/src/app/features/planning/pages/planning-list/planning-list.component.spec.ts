@@ -5,7 +5,7 @@ import { PlanningListComponent } from './planning-list.component';
 import { AppStoreState } from '../../../../store';
 import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
 import * as PlanningActions from '../../../../store/planning/planning.actions';
-import { PlanningWeek } from '../../../../models';
+import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { Router } from '@angular/router';
 
 describe('PlanningListComponent', () => {
@@ -17,15 +17,15 @@ describe('PlanningListComponent', () => {
   const mockPlanningWeeks: PlanningWeek[] = [
     {
       id: '1',
-      weekStartDate: new Date('2026-01-07'),
-      weekEndDate: new Date('2026-01-13'),
-      goals: 'Test goals',
-      keyActivities: 'Test activities',
-      reflection: 'Test reflection',
-      healthScore: 8,
-      productivity: 85,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      planningDate: new Date('2026-01-07'),
+      startDate: new Date('2026-01-08'),
+      endDate: new Date('2026-01-13'),
+      status: PlanningStatus.InProgress,
+      isFrozen: false,
+      clientPercent: 34,
+      techDebtPercent: 33,
+      rndPercent: 33,
+      createdAt: new Date()
     }
   ];
 
@@ -76,7 +76,7 @@ describe('PlanningListComponent', () => {
     fixture.detectChanges();
     component.planningWeeks$.subscribe(weeks => {
       expect(weeks.length).toBe(1);
-      expect(weeks[0].goals).toBe('Test goals');
+      expect(weeks[0].clientPercent).toBe(34);
       done();
     });
   });

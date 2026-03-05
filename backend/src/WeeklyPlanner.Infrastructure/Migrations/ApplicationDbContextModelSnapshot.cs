@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeeklyPlanner.Infrastructure.Persistence;
 
 #nullable disable
@@ -16,41 +15,37 @@ namespace WeeklyPlanner.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
-
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
 
             modelBuilder.Entity("WeeklyPlanner.Domain.Entities.BacklogItem", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Category")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(6, 1)
-                        .HasColumnType("numeric(6,1)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsArchived")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -61,42 +56,76 @@ namespace WeeklyPlanner.Infrastructure.Migrations
                     b.ToTable("BacklogItems");
                 });
 
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.MemberTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("ActualHours")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("BacklogItemId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PlannedHours")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProgressPercent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid>("WeekMemberId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BacklogItemId");
+
+                    b.HasIndex("WeekMemberId", "BacklogItemId")
+                        .IsUnique();
+
+                    b.ToTable("MemberTasks");
+                });
+
             modelBuilder.Entity("WeeklyPlanner.Domain.Entities.PlanningWeek", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("ClientPercent")
                         .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsFrozen")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<DateTime>("PlanningDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("RndPercent")
                         .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal>("TechDebtPercent")
                         .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -106,6 +135,104 @@ namespace WeeklyPlanner.Infrastructure.Migrations
                     b.HasIndex("StartDate", "EndDate");
 
                     b.ToTable("PlanningWeeks");
+                });
+
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.TeamMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TeamMembers");
+                });
+
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.WeekMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("HasSubmitted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalActualHours")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalPlannedHours")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("WeekId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("WeekId", "MemberId")
+                        .IsUnique();
+
+                    b.ToTable("WeekMembers");
+                });
+
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.MemberTask", b =>
+                {
+                    b.HasOne("WeeklyPlanner.Domain.Entities.BacklogItem", "BacklogItem")
+                        .WithMany()
+                        .HasForeignKey("BacklogItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WeeklyPlanner.Domain.Entities.WeekMember", "WeekMember")
+                        .WithMany("Tasks")
+                        .HasForeignKey("WeekMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BacklogItem");
+
+                    b.Navigation("WeekMember");
+                });
+
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.WeekMember", b =>
+                {
+                    b.HasOne("WeeklyPlanner.Domain.Entities.TeamMember", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WeeklyPlanner.Domain.Entities.PlanningWeek", "Week")
+                        .WithMany()
+                        .HasForeignKey("WeekId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Week");
+                });
+
+            modelBuilder.Entity("WeeklyPlanner.Domain.Entities.WeekMember", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

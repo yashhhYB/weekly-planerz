@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   BacklogItem,
   BacklogItemDto,
-  BacklogStatus,
+  BacklogCategory,
   CreateBacklogItemRequest,
   UpdateBacklogItemRequest,
   ApiResponse
@@ -21,11 +21,6 @@ import {
 })
 export class BacklogService {
   private apiUrl = `${environment.apiUrl}/backlog`;
-  private backlogItemsSubject = new BehaviorSubject<BacklogItem[]>([]);
-  public backlogItems$ = this.backlogItemsSubject.asObservable();
-
-  private activeBacklogItemsSubject = new BehaviorSubject<BacklogItem[]>([]);
-  public activeBacklogItems$ = this.activeBacklogItemsSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -38,9 +33,7 @@ export class BacklogService {
       .pipe(
         map(response => {
           if (response.success && response.data) {
-            const items = response.data.map(dto => this.mapDtoToDomain(dto));
-            this.backlogItemsSubject.next(items);
-            return items;
+            return response.data.map(dto => this.mapDtoToDomain(dto));
           }
           return [];
         })
@@ -56,9 +49,7 @@ export class BacklogService {
       .pipe(
         map(response => {
           if (response.success && response.data) {
-            const items = response.data.map(dto => this.mapDtoToDomain(dto));
-            this.activeBacklogItemsSubject.next(items);
-            return items;
+            return response.data.map(dto => this.mapDtoToDomain(dto));
           }
           return [];
         })
@@ -147,14 +138,10 @@ export class BacklogService {
       id: dto.id,
       title: dto.title,
       description: dto.description,
-      category: dto.category as any,
+      category: dto.category as BacklogCategory,
       estimatedHours: dto.estimatedHours,
-      status: dto.status as any,
       isArchived: dto.isArchived,
-      priority: dto.priority,
-      planningWeekId: dto.planningWeekId,
-      createdAt: new Date(dto.createdAt),
-      updatedAt: new Date(dto.updatedAt)
+      createdAt: new Date(dto.createdAt)
     };
   }
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, catchError, switchMap, mergeMap } from 'rxjs/operators';
+import { map, catchError, switchMap, mergeMap, tap } from 'rxjs/operators';
 import { PlanningService } from '../../core/services';
+import { ToastService } from '../../core/services/toast.service';
 import * as PlanningActions from './planning.actions';
 
 /**
@@ -96,8 +97,98 @@ export class PlanningEffects {
     )
   );
 
+  startPlanningWeek$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PlanningActions.startPlanningWeek),
+      mergeMap((action) =>
+        this.planningService.startPlanningWeek(action.id).pipe(
+          map(week => PlanningActions.startPlanningWeekSuccess({ week })),
+          catchError(error => of(PlanningActions.startPlanningWeekFailure({ 
+            error: error.message || 'Failed to start planning week' 
+          })))
+        )
+      )
+    )
+  );
+
+  completePlanningWeek$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PlanningActions.completePlanningWeek),
+      mergeMap((action) =>
+        this.planningService.completePlanningWeek(action.id).pipe(
+          map(week => PlanningActions.completePlanningWeekSuccess({ week })),
+          catchError(error => of(PlanningActions.completePlanningWeekFailure({ 
+            error: error.message || 'Failed to complete planning week' 
+          })))
+        )
+      )
+    )
+  );
+
+  archivePlanningWeek$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PlanningActions.archivePlanningWeek),
+      mergeMap((action) =>
+        this.planningService.archivePlanningWeek(action.id).pipe(
+          map(week => PlanningActions.archivePlanningWeekSuccess({ week })),
+          catchError(error => of(PlanningActions.archivePlanningWeekFailure({ 
+            error: error.message || 'Failed to archive planning week' 
+          })))
+        )
+      )
+    )
+  );
+
+  // Toast notifications for success actions
+  showSuccessToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        PlanningActions.createPlanningWeekSuccess,
+        PlanningActions.updatePlanningWeekSuccess,
+        PlanningActions.freezePlanningWeekSuccess,
+        PlanningActions.startPlanningWeekSuccess,
+        PlanningActions.completePlanningWeekSuccess,
+        PlanningActions.archivePlanningWeekSuccess
+      ),
+      tap((action) => {
+        const messages: Record<string, string> = {
+          '[Planning Form] Create Planning Week Success': 'Planning week created successfully!',
+          '[Planning Form] Update Planning Week Success': 'Planning week updated successfully!',
+          '[Planning Detail] Freeze Planning Week Success': 'Planning week frozen!',
+          '[Planning Detail] Start Planning Week Success': 'Planning week started!',
+          '[Planning Detail] Complete Planning Week Success': 'Planning week completed!',
+          '[Planning Detail] Archive Planning Week Success': 'Planning week archived!'
+        };
+        this.toastService.success(messages[action.type] || 'Operation successful!');
+      })
+    ), { dispatch: false }
+  );
+
+  showDeleteToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(PlanningActions.deletePlanningWeekSuccess),
+      tap(() => this.toastService.success('Planning week deleted!'))
+    ), { dispatch: false }
+  );
+
+  showErrorToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        PlanningActions.createPlanningWeekFailure,
+        PlanningActions.updatePlanningWeekFailure,
+        PlanningActions.freezePlanningWeekFailure,
+        PlanningActions.startPlanningWeekFailure,
+        PlanningActions.completePlanningWeekFailure,
+        PlanningActions.archivePlanningWeekFailure,
+        PlanningActions.deletePlanningWeekFailure
+      ),
+      tap((action) => this.toastService.error(action.error))
+    ), { dispatch: false }
+  );
+
   constructor(
     private actions$: Actions,
-    private planningService: PlanningService
+    private planningService: PlanningService,
+    private toastService: ToastService
   ) {}
 }

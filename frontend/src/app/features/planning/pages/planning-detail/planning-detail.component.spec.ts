@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { PlanningDetailComponent } from './planning-detail.component';
@@ -6,7 +7,10 @@ import { AppStoreState } from '../../../../store';
 import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
 import * as PlanningActions from '../../../../store/planning/planning.actions';
 import { Router, ActivatedRoute } from '@angular/router';
-import { PlanningWeek } from '../../../../models';
+import { PlanningWeek, PlanningStatus } from '../../../../models';
+import { WeekMemberService } from '../../../../core/services/week-member.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import * as TeamSelectors from '../../../../store/team/team.selectors';
 
 describe('PlanningDetailComponent', () => {
   let component: PlanningDetailComponent;
@@ -17,26 +21,30 @@ describe('PlanningDetailComponent', () => {
 
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: new Date('2026-01-07'),
-    weekEndDate: new Date('2026-01-13'),
-    goals: 'Test goals',
-    keyActivities: 'Test activities',
-    reflection: 'Test reflection',
-    healthScore: 8,
-    productivity: 85,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    planningDate: new Date('2026-01-07'),
+    startDate: new Date('2026-01-08'),
+    endDate: new Date('2026-01-13'),
+    status: PlanningStatus.InProgress,
+    isFrozen: false,
+    clientPercent: 34,
+    techDebtPercent: 33,
+    rndPercent: 33,
+    createdAt: new Date()
   };
 
   beforeEach(async () => {
     const storeSpy = jasmine.createSpyObj('Store', ['select', 'dispatch']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const weekMemberSpy = jasmine.createSpyObj('WeekMemberService', ['getWeekMembers', 'addWeekMembers']);
+    weekMemberSpy.getWeekMembers.and.returnValue(of([]));
+    weekMemberSpy.addWeekMembers.and.returnValue(of([]));
+    const toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info', 'warning']);
 
     await TestBed.configureTestingModule({
-      imports: [PlanningDetailComponent],
+      imports: [PlanningDetailComponent, RouterTestingModule],
       providers: [
         { provide: Store, useValue: storeSpy },
-        { provide: Router, useValue: routerSpy },
+        { provide: WeekMemberService, useValue: weekMemberSpy },
+        { provide: ToastService, useValue: toastSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -47,7 +55,8 @@ describe('PlanningDetailComponent', () => {
     }).compileComponents();
 
     store = TestBed.inject(Store) as jasmine.SpyObj<Store<AppStoreState>>;
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    router = TestBed.inject(Router) as any;
+    spyOn(router, 'navigate');
     route = TestBed.inject(ActivatedRoute);
 
     storeSpy.select.and.callFake((selector: any) => {
@@ -56,6 +65,9 @@ describe('PlanningDetailComponent', () => {
       }
       if (selector === PlanningSelectors.selectPlanningError) {
         return of(null);
+      }
+      if (selector === TeamSelectors.selectAllTeamMembers) {
+        return of([]);
       }
       return of(mockPlanningWeek);
     });
@@ -76,8 +88,8 @@ describe('PlanningDetailComponent', () => {
   it('should display planning week details', (done) => {
     fixture.detectChanges();
     component.planningWeek$.subscribe(week => {
-      expect(week?.goals).toBe('Test goals');
-      expect(week?.healthScore).toBe(8);
+      expect(week?.clientPercent).toBe(34);
+      expect(week?.techDebtPercent).toBe(33);
       done();
     });
   });
