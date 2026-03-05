@@ -1,28 +1,24 @@
 /**
- * Category enum for backlog items
+ * Category enum for backlog items - matches backend BacklogItemCategory
  */
 export enum BacklogCategory {
-  Work = 'Work',
-  Personal = 'Personal',
-  Learning = 'Learning',
-  Health = 'Health',
-  Finance = 'Finance',
-  Relationships = 'Relationships'
+  ClientFocused = 1,
+  TechDebt = 2,
+  RnD = 3
 }
 
 /**
- * Status enum for backlog items
+ * Helper to get category display label
  */
-export enum BacklogStatus {
-  Pending = 'Pending',
-  InProgress = 'InProgress',
-  Completed = 'Completed',
-  Archived = 'Archived'
-}
+export const BacklogCategoryLabels: Record<number, string> = {
+  [BacklogCategory.ClientFocused]: 'Client Focused',
+  [BacklogCategory.TechDebt]: 'Tech Debt',
+  [BacklogCategory.RnD]: 'R&D'
+};
 
 /**
  * Backlog Item domain model
- * Represents a task or item in the backlog
+ * Matches backend BacklogItemDto exactly
  */
 export interface BacklogItem {
   id: string;
@@ -30,12 +26,8 @@ export interface BacklogItem {
   description: string;
   category: BacklogCategory;
   estimatedHours: number;
-  status: BacklogStatus;
   isArchived: boolean;
-  priority: number; // 1-5, where 1 is highest
-  planningWeekId?: string;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 /**
@@ -45,36 +37,28 @@ export interface BacklogItemDto {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category: number;
   estimatedHours: number;
-  status: string;
   isArchived: boolean;
-  priority: number;
-  planningWeekId?: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 /**
- * Create Backlog Item request
+ * Create Backlog Item request - matches backend CreateBacklogItemRequest
  */
 export interface CreateBacklogItemRequest {
   title: string;
   description: string;
-  category: BacklogCategory;
+  category: number;
   estimatedHours: number;
-  priority: number;
-  status?: BacklogStatus; // Optional on create, defaults to Pending
 }
 
 /**
- * Update Backlog Item request
+ * Update Backlog Item request - matches backend UpdateBacklogItemRequest
  */
 export interface UpdateBacklogItemRequest {
   title: string;
   description: string;
-  category: BacklogCategory;
+  category: number;
   estimatedHours: number;
-  status: BacklogStatus;
-  priority: number;
 }

@@ -89,7 +89,7 @@ public class UpdateBacklogItemHandler : IRequestHandler<UpdateBacklogItemCommand
                 return Result<BacklogItemDto>.Fail("Backlog item not found");
             }
 
-            backlogItem.Update(request.Request.Title, request.Request.Description, request.Request.EstimatedHours);
+            backlogItem.Update(request.Request.Title, request.Request.Description, request.Request.Category, request.Request.EstimatedHours);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Successfully updated backlog item {Id}", request.Id);

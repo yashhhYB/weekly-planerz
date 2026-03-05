@@ -6,7 +6,7 @@ import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 import { Router, ActivatedRoute } from '@angular/router';
-import { BacklogItem, BacklogCategory, BacklogStatus } from '../../../../models';
+import { BacklogItem, BacklogCategory } from '../../../../models';
 
 describe('BacklogDetailComponent', () => {
   let component: BacklogDetailComponent;
@@ -19,13 +19,10 @@ describe('BacklogDetailComponent', () => {
     id: '1',
     title: 'Test Task',
     description: 'Test description',
-    category: BacklogCategory.Work,
-    priority: 3,
+    category: BacklogCategory.ClientFocused,
     estimatedHours: 5,
-    status: BacklogStatus.Pending,
     isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date()
   };
 
   beforeEach(async () => {
@@ -77,7 +74,7 @@ describe('BacklogDetailComponent', () => {
     fixture.detectChanges();
     component.backlogItem$.subscribe(item => {
       expect(item?.title).toBe('Test Task');
-      expect(item?.priority).toBe(3);
+      expect(item?.estimatedHours).toBe(5);
       done();
     });
   });

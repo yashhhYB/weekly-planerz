@@ -101,6 +101,12 @@ public class UpdatePlanningWeekHandler : IRequestHandler<UpdatePlanningWeekComma
             // Note: In a real scenario, you might have update methods on the domain entity
             // For now, we're directly modifying properties - consider refactoring this
 
+            planningWeek.Update(
+                request.Request.ClientPercent,
+                request.Request.TechDebtPercent,
+                request.Request.RndPercent
+            );
+
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Successfully updated planning week {Id}", request.Id);
@@ -226,4 +232,144 @@ public class DeletePlanningWeekHandler : IRequestHandler<DeletePlanningWeekComma
             return Result<bool>.Fail("Failed to delete planning week");
         }
     }
+}
+
+/// <summary>
+/// Handler for starting a planning week (Setup -> InProgress)
+/// </summary>
+public class StartPlanningWeekHandler : IRequestHandler<StartPlanningWeekCommand, Result<PlanningWeekDto>>
+{
+    private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<StartPlanningWeekHandler> _logger;
+
+    public StartPlanningWeekHandler(ApplicationDbContext dbContext, ILogger<StartPlanningWeekHandler> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
+
+    public async Task<Result<PlanningWeekDto>> Handle(StartPlanningWeekCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var planningWeek = await _dbContext.PlanningWeeks.FindAsync(new object[] { request.Id }, cancellationToken: cancellationToken);
+            if (planningWeek == null)
+                return Result<PlanningWeekDto>.Fail("Planning week not found");
+
+            planningWeek.Start();
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Started planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Ok(PlanningWeekMapper.MapToDto(planningWeek), "Planning week started");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<PlanningWeekDto>.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Fail("Failed to start planning week");
+        }
+    }
+}
+
+/// <summary>
+/// Handler for completing a planning week (InProgress -> Completed)
+/// </summary>
+public class CompletePlanningWeekHandler : IRequestHandler<CompletePlanningWeekCommand, Result<PlanningWeekDto>>
+{
+    private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<CompletePlanningWeekHandler> _logger;
+
+    public CompletePlanningWeekHandler(ApplicationDbContext dbContext, ILogger<CompletePlanningWeekHandler> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
+
+    public async Task<Result<PlanningWeekDto>> Handle(CompletePlanningWeekCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var planningWeek = await _dbContext.PlanningWeeks.FindAsync(new object[] { request.Id }, cancellationToken: cancellationToken);
+            if (planningWeek == null)
+                return Result<PlanningWeekDto>.Fail("Planning week not found");
+
+            planningWeek.Complete();
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Completed planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Ok(PlanningWeekMapper.MapToDto(planningWeek), "Planning week completed");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<PlanningWeekDto>.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error completing planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Fail("Failed to complete planning week");
+        }
+    }
+}
+
+/// <summary>
+/// Handler for archiving a planning week (Completed -> Archived)
+/// </summary>
+public class ArchivePlanningWeekHandler : IRequestHandler<ArchivePlanningWeekCommand, Result<PlanningWeekDto>>
+{
+    private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<ArchivePlanningWeekHandler> _logger;
+
+    public ArchivePlanningWeekHandler(ApplicationDbContext dbContext, ILogger<ArchivePlanningWeekHandler> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
+
+    public async Task<Result<PlanningWeekDto>> Handle(ArchivePlanningWeekCommand request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var planningWeek = await _dbContext.PlanningWeeks.FindAsync(new object[] { request.Id }, cancellationToken: cancellationToken);
+            if (planningWeek == null)
+                return Result<PlanningWeekDto>.Fail("Planning week not found");
+
+            planningWeek.ArchiveWeek();
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Archived planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Ok(PlanningWeekMapper.MapToDto(planningWeek), "Planning week archived");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<PlanningWeekDto>.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error archiving planning week {Id}", request.Id);
+            return Result<PlanningWeekDto>.Fail("Failed to archive planning week");
+        }
+    }
+}
+
+/// <summary>
+/// Helper to map PlanningWeek entity to DTO
+/// </summary>
+internal static class PlanningWeekMapper
+{
+    public static PlanningWeekDto MapToDto(PlanningWeek pw) => new()
+    {
+        Id = pw.Id,
+        PlanningDate = pw.PlanningDate,
+        StartDate = pw.StartDate,
+        EndDate = pw.EndDate,
+        Status = pw.Status,
+        IsFrozen = pw.IsFrozen,
+        ClientPercent = pw.ClientPercent,
+        TechDebtPercent = pw.TechDebtPercent,
+        RndPercent = pw.RndPercent,
+        CreatedAt = pw.CreatedAt
+    };
 }

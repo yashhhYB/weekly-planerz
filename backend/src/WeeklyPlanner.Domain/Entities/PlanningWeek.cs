@@ -45,9 +45,54 @@ public class PlanningWeek
         CreatedAt = DateTime.UtcNow;
     }
 
+    public void Update(decimal clientPercent, decimal techDebtPercent, decimal rndPercent)
+    {
+        if (IsFrozen)
+            throw new InvalidOperationException("Cannot update a frozen planning week");
+
+        var total = clientPercent + techDebtPercent + rndPercent;
+        if (Math.Abs(total - 100m) > 0.01m)
+            throw new InvalidOperationException("Category percentages must sum to exactly 100%");
+
+        ClientPercent = clientPercent;
+        TechDebtPercent = techDebtPercent;
+        RndPercent = rndPercent;
+    }
+
     public void Freeze()
     {
         IsFrozen = true;
+    }
+
+    /// <summary>
+    /// Transition from Setup (1) to InProgress (2)
+    /// </summary>
+    public void Start()
+    {
+        if (Status != 1)
+            throw new InvalidOperationException("Can only start a planning week that is in Setup status");
+        Status = 2; // InProgress
+    }
+
+    /// <summary>
+    /// Transition from InProgress (2) to Completed (3)
+    /// </summary>
+    public void Complete()
+    {
+        if (Status != 2)
+            throw new InvalidOperationException("Can only complete a planning week that is In Progress");
+        Status = 3; // Completed
+        Freeze();
+    }
+
+    /// <summary>
+    /// Transition from Completed (3) to Archived (4)
+    /// </summary>
+    public void ArchiveWeek()
+    {
+        if (Status != 3)
+            throw new InvalidOperationException("Can only archive a planning week that is Completed");
+        Status = 4; // Archived
     }
 
     public decimal GetClientHours() => 30 * (ClientPercent / 100);

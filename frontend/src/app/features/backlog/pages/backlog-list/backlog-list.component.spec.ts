@@ -5,7 +5,7 @@ import { BacklogListComponent } from './backlog-list.component';
 import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
-import { BacklogItem, BacklogCategory, BacklogStatus } from '../../../../models';
+import { BacklogItem, BacklogCategory } from '../../../../models';
 import { Router } from '@angular/router';
 
 describe('BacklogListComponent', () => {
@@ -19,25 +19,19 @@ describe('BacklogListComponent', () => {
       id: '1',
       title: 'Test Task',
       description: 'Test description',
-      category: BacklogCategory.Work,
-      priority: 3,
+      category: BacklogCategory.ClientFocused,
       estimatedHours: 5,
-      status: BacklogStatus.Pending,
       isArchived: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     },
     {
       id: '2',
-      title: 'In Progress Task',
-      description: 'Currently working',
-      category: BacklogCategory.Learning,
-      priority: 4,
+      title: 'Tech Debt Task',
+      description: 'Refactoring work',
+      category: BacklogCategory.TechDebt,
       estimatedHours: 8,
-      status: BacklogStatus.InProgress,
       isArchived: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: new Date()
     }
   ];
 
@@ -92,24 +86,34 @@ describe('BacklogListComponent', () => {
     });
   });
 
-  it('should filter backlog items by status', (done) => {
+  it('should filter backlog items by category', (done) => {
     fixture.detectChanges();
-    component.filterByStatus('InProgress');
-    expect(component.selectedStatus).toBe('InProgress');
+    component.filterByCategory(BacklogCategory.ClientFocused);
+    expect(component.selectedCategory).toBe(BacklogCategory.ClientFocused);
     component.filteredItems$.subscribe(items => {
-      expect(items[0].status).toBe('InProgress');
+      expect(items.length).toBe(1);
+      expect(items[0].category).toBe(BacklogCategory.ClientFocused);
       done();
     });
   });
 
-  it('should display all items when filtering by All', (done) => {
+  it('should display all items when filtering by 0 (All)', (done) => {
     fixture.detectChanges();
-    component.filterByStatus('All');
-    expect(component.selectedStatus).toBe('All');
+    component.filterByCategory(0);
+    expect(component.selectedCategory).toBe(0);
     component.filteredItems$.subscribe(items => {
       expect(items.length).toBe(2);
       done();
     });
+  });
+
+  it('should toggle archived visibility', () => {
+    fixture.detectChanges();
+    expect(component.showArchived).toBe(false);
+    component.toggleArchived();
+    expect(component.showArchived).toBe(true);
+    component.toggleArchived();
+    expect(component.showArchived).toBe(false);
   });
 
   it('should navigate to create view', () => {
@@ -148,12 +152,10 @@ describe('BacklogListComponent', () => {
     );
   });
 
-  it('should have all filter statuses available', () => {
+  it('should have category filters available', () => {
     fixture.detectChanges();
-    expect(component.statuses).toContain('All');
-    expect(component.statuses).toContain('Pending');
-    expect(component.statuses).toContain('InProgress');
-    expect(component.statuses).toContain('Completed');
-    expect(component.statuses).toContain('Archived');
+    expect(component.categoryFilters.length).toBe(4);
+    expect(component.categoryFilters[0].value).toBe(0);
+    expect(component.categoryFilters[0].label).toBe('All');
   });
 });

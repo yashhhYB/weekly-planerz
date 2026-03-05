@@ -1,30 +1,27 @@
 import * as fromBacklogSelectors from './backlog.selectors';
 import { BacklogState } from './backlog.reducer';
-import { BacklogItem, BacklogCategory, BacklogStatus } from '../../models';
+import { BacklogItem, BacklogCategory } from '../../models';
 
 describe('BacklogSelectors', () => {
   const mockBacklogItem: BacklogItem = {
     id: '1',
     title: 'Test Task',
     description: 'Test description',
-    category: BacklogCategory.Work,
-    priority: 3,
+    category: BacklogCategory.ClientFocused,
     estimatedHours: 5,
-    status: BacklogStatus.Pending,
     isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date()
   };
 
-  const mockInProgressItem: BacklogItem = {
+  const mockTechDebtItem: BacklogItem = {
     ...mockBacklogItem,
     id: '2',
-    title: 'In Progress Task',
-    status: BacklogStatus.InProgress
+    title: 'Tech Debt Task',
+    category: BacklogCategory.TechDebt
   };
 
   const mockState: BacklogState = {
-    items: [mockBacklogItem, mockInProgressItem],
+    items: [mockBacklogItem, mockTechDebtItem],
     selectedItem: null,
     activeItems: [],
     loading: false,
@@ -48,7 +45,7 @@ describe('BacklogSelectors', () => {
 
   it('should select backlog item by id', () => {
     const selector = fromBacklogSelectors.selectBacklogItemById('1');
-    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
+    const result = selector.projector([mockBacklogItem, mockTechDebtItem]);
     expect(result).toEqual(mockBacklogItem);
   });
 
@@ -58,28 +55,22 @@ describe('BacklogSelectors', () => {
     expect(result).toBeUndefined();
   });
 
-  it('should select backlog items by status', () => {
-    const selector = fromBacklogSelectors.selectBacklogItemsByStatus(BacklogStatus.InProgress);
-    const result = (selector as any).projector([mockBacklogItem, mockInProgressItem]);
-    expect(result.length).toBe(1);
-    expect(result[0].status).toBe(BacklogStatus.InProgress);
-  });
-
   it('should select active backlog items', () => {
     const selector = fromBacklogSelectors.selectActiveBacklogItems;
-    const result = selector.projector({ ...mockState, activeItems: [mockBacklogItem, mockInProgressItem] });
+    const result = selector.projector({ ...mockState, activeItems: [mockBacklogItem, mockTechDebtItem] });
     expect(result.length).toBeGreaterThan(0);
   });
 
   it('should select backlog items by category', () => {
-    const selector = fromBacklogSelectors.selectBacklogItemsByCategory(BacklogCategory.Work);
-    const result = (selector as any).projector([mockBacklogItem, mockInProgressItem]);
-    expect(result.length).toBe(2);
+    const selector = fromBacklogSelectors.selectBacklogItemsByCategory(BacklogCategory.ClientFocused);
+    const result = (selector as any).projector([mockBacklogItem, mockTechDebtItem]);
+    expect(result.length).toBe(1);
+    expect(result[0].category).toBe(BacklogCategory.ClientFocused);
   });
 
   it('should select backlog item count', () => {
     const selector = fromBacklogSelectors.selectBacklogItemsCount;
-    const result = selector.projector([mockBacklogItem, mockInProgressItem]);
+    const result = selector.projector([mockBacklogItem, mockTechDebtItem]);
     expect(result).toBe(2);
   });
 

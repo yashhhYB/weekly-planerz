@@ -1,19 +1,16 @@
 import { BacklogState, backlogReducer, initialBacklogState } from './backlog.reducer';
 import * as BacklogActions from './backlog.actions';
-import { BacklogItem, BacklogCategory, BacklogStatus } from '../../models';
+import { BacklogItem, BacklogCategory } from '../../models';
 
 describe('BacklogReducer', () => {
   const mockBacklogItem: BacklogItem = {
     id: '1',
     title: 'Test Task',
     description: 'Test description',
-    category: BacklogCategory.Work,
-    priority: 3,
+    category: BacklogCategory.ClientFocused,
     estimatedHours: 5,
-    status: BacklogStatus.Pending,
     isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: new Date()
   };
 
   it('should return the initial state', () => {
@@ -53,8 +50,7 @@ describe('BacklogReducer', () => {
       request: {
         title: 'New Task',
         description: 'New task description',
-        category: BacklogCategory.Work,
-        priority: 3,
+        category: BacklogCategory.ClientFocused,
         estimatedHours: 5
       }
     });
@@ -80,10 +76,8 @@ describe('BacklogReducer', () => {
         request: { 
           title: 'Updated Task',
           description: 'Test description',
-          category: BacklogCategory.Work,
-          estimatedHours: 5,
-          status: BacklogStatus.Pending,
-          priority: 3
+          category: BacklogCategory.ClientFocused,
+          estimatedHours: 5
         }
       })
     );

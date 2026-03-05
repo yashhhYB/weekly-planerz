@@ -48,14 +48,16 @@ public class BacklogItemTests
         var backlogItem = new BacklogItem("Old Title", "Old Description", 1, 5);
         var newTitle = "New Title";
         var newDescription = "New Description";
+        var newCategory = 2;
         var newHours = 10m;
 
         // Act
-        backlogItem.Update(newTitle, newDescription, newHours);
+        backlogItem.Update(newTitle, newDescription, newCategory, newHours);
 
         // Assert
         Assert.Equal(newTitle, backlogItem.Title);
         Assert.Equal(newDescription, backlogItem.Description);
+        Assert.Equal(newCategory, backlogItem.Category);
         Assert.Equal(newHours, backlogItem.EstimatedHours);
     }
 }

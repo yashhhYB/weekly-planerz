@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, catchError, switchMap, mergeMap } from 'rxjs/operators';
+import { map, catchError, switchMap, mergeMap, tap } from 'rxjs/operators';
 import { BacklogService } from '../../core/services';
+import { ToastService } from '../../core/services/toast.service';
 import * as BacklogActions from './backlog.actions';
 
 /**
@@ -86,10 +87,8 @@ export class BacklogEffects {
     this.actions$.pipe(
       ofType(BacklogActions.archiveBacklogItem),
       mergeMap((action) =>
-        this.backlogService.deleteBacklogItem(action.id).pipe(
-          map(() => BacklogActions.archiveBacklogItemSuccess({ 
-            item: { id: action.id } as any // Placeholder for archived item
-          })),
+        this.backlogService.archiveBacklogItem(action.id).pipe(
+          map(item => BacklogActions.archiveBacklogItemSuccess({ item })),
           catchError(error => of(BacklogActions.archiveBacklogItemFailure({ 
             error: error.message || 'Failed to archive backlog item' 
           })))
@@ -112,8 +111,47 @@ export class BacklogEffects {
     )
   );
 
+  // Toast notifications
+  showSuccessToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        BacklogActions.createBacklogItemSuccess,
+        BacklogActions.updateBacklogItemSuccess,
+        BacklogActions.archiveBacklogItemSuccess
+      ),
+      tap((action) => {
+        const messages: Record<string, string> = {
+          '[Backlog Form] Create Backlog Item Success': 'Backlog item created!',
+          '[Backlog Form] Update Backlog Item Success': 'Backlog item updated!',
+          '[Backlog Detail] Archive Backlog Item Success': 'Backlog item archived!'
+        };
+        this.toastService.success(messages[action.type] || 'Operation successful!');
+      })
+    ), { dispatch: false }
+  );
+
+  showDeleteToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(BacklogActions.deleteBacklogItemSuccess),
+      tap(() => this.toastService.success('Backlog item deleted!'))
+    ), { dispatch: false }
+  );
+
+  showErrorToast$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(
+        BacklogActions.createBacklogItemFailure,
+        BacklogActions.updateBacklogItemFailure,
+        BacklogActions.archiveBacklogItemFailure,
+        BacklogActions.deleteBacklogItemFailure
+      ),
+      tap((action) => this.toastService.error(action.error))
+    ), { dispatch: false }
+  );
+
   constructor(
     private actions$: Actions,
-    private backlogService: BacklogService
+    private backlogService: BacklogService,
+    private toastService: ToastService
   ) {}
 }

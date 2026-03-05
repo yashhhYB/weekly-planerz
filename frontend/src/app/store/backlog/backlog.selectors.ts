@@ -44,14 +44,8 @@ export const selectBacklogItemsCount = createSelector(
   (items) => items.length
 );
 
-export const selectBacklogItemsByCategory = (category: string) =>
+export const selectBacklogItemsByCategory = (category: number) =>
   createSelector(
     selectAllBacklogItems,
     (items) => items.filter(i => i.category === category)
-  );
-
-export const selectBacklogItemsByStatus = (status: string) =>
-  createSelector(
-    selectAllBacklogItems,
-    (items) => items.filter(i => i.status === status)
   );

@@ -110,6 +110,45 @@ export const planningReducer = createReducer(
     loading: false,
     error
   })),
+
+  // Start Planning Week
+  on(PlanningActions.startPlanningWeek, (state) => ({
+    ...state, loading: true, error: null
+  })),
+  on(PlanningActions.startPlanningWeekSuccess, (state, { week }) => ({
+    ...state,
+    weeks: state.weeks.map(w => w.id === week.id ? week : w),
+    selectedWeek: week, loading: false
+  })),
+  on(PlanningActions.startPlanningWeekFailure, (state, { error }) => ({
+    ...state, loading: false, error
+  })),
+
+  // Complete Planning Week
+  on(PlanningActions.completePlanningWeek, (state) => ({
+    ...state, loading: true, error: null
+  })),
+  on(PlanningActions.completePlanningWeekSuccess, (state, { week }) => ({
+    ...state,
+    weeks: state.weeks.map(w => w.id === week.id ? week : w),
+    selectedWeek: week, loading: false
+  })),
+  on(PlanningActions.completePlanningWeekFailure, (state, { error }) => ({
+    ...state, loading: false, error
+  })),
+
+  // Archive Planning Week
+  on(PlanningActions.archivePlanningWeek, (state) => ({
+    ...state, loading: true, error: null
+  })),
+  on(PlanningActions.archivePlanningWeekSuccess, (state, { week }) => ({
+    ...state,
+    weeks: state.weeks.map(w => w.id === week.id ? week : w),
+    selectedWeek: week, loading: false
+  })),
+  on(PlanningActions.archivePlanningWeekFailure, (state, { error }) => ({
+    ...state, loading: false, error
+  })),
   
   // Delete Planning Week
   on(PlanningActions.deletePlanningWeek, (state) => ({

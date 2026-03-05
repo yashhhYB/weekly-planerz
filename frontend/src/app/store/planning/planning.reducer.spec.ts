@@ -1,19 +1,19 @@
 import { PlanningState, planningReducer, initialPlanningState } from './planning.reducer';
 import * as PlanningActions from './planning.actions';
-import { PlanningWeek } from '../../models';
+import { PlanningWeek, PlanningStatus } from '../../models';
 
 describe('PlanningReducer', () => {
   const mockPlanningWeek: PlanningWeek = {
     id: '1',
-    weekStartDate: new Date('2026-01-07'),
-    weekEndDate: new Date('2026-01-13'),
-    goals: 'Test goals',
-    keyActivities: 'Test activities',
-    reflection: 'Test reflection',
-    healthScore: 8,
-    productivity: 85,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    planningDate: new Date('2026-01-07'),
+    startDate: new Date('2026-01-08'),
+    endDate: new Date('2026-01-13'),
+    status: PlanningStatus.InProgress,
+    isFrozen: false,
+    clientPercent: 34,
+    techDebtPercent: 33,
+    rndPercent: 33,
+    createdAt: new Date()
   };
 
   it('should return the initial state', () => {
@@ -51,11 +51,10 @@ describe('PlanningReducer', () => {
   it('should handle createPlanningWeek', () => {
     const action = PlanningActions.createPlanningWeek({ 
       request: {
-        weekStartDate: '2026-01-07',
-        goals: 'New goals',
-        keyActivities: 'New activities',
-        healthScore: 7,
-        productivity: 80
+        planningDate: '2026-01-07T00:00:00.000Z',
+        clientPercent: 34,
+        techDebtPercent: 33,
+        rndPercent: 33
       }
     });
     const state = planningReducer(initialPlanningState, action);
@@ -69,7 +68,7 @@ describe('PlanningReducer', () => {
     );
     expect(state.loading).toBe(false);
     expect(state.weeks.length).toBe(1);
-    expect(state.weeks[0].goals).toBe('Test goals');
+    expect(state.weeks[0].clientPercent).toBe(34);
   });
 
   it('should handle updatePlanningWeek', () => {
@@ -78,11 +77,9 @@ describe('PlanningReducer', () => {
       PlanningActions.updatePlanningWeek({ 
         id: '1', 
         request: { 
-          goals: 'Updated',
-          keyActivities: 'Updated activities',
-          reflection: '',
-          healthScore: 8,
-          productivity: 85
+          clientPercent: 50,
+          techDebtPercent: 30,
+          rndPercent: 20
         }
       })
     );
@@ -90,22 +87,22 @@ describe('PlanningReducer', () => {
   });
 
   it('should handle updatePlanningWeekSuccess', () => {
-    const updated = { ...mockPlanningWeek, goals: 'Updated' };
+    const updated = { ...mockPlanningWeek, clientPercent: 50 };
     const state = planningReducer(
       { ...initialPlanningState, loading: true, weeks: [mockPlanningWeek] },
       PlanningActions.updatePlanningWeekSuccess({ week: updated })
     );
     expect(state.loading).toBe(false);
-    expect(state.weeks[0].goals).toBe('Updated');
+    expect(state.weeks[0].clientPercent).toBe(50);
   });
 
   it('should handle freezePlanningWeek success', () => {
-    const frozen = { ...mockPlanningWeek, goals: 'Frozen goals' };
+    const frozen = { ...mockPlanningWeek, isFrozen: true };
     const state = planningReducer(
       { ...initialPlanningState, weeks: [mockPlanningWeek] },
       PlanningActions.freezePlanningWeekSuccess({ week: frozen })
     );
-    expect(state.weeks[0].goals).toBe('Frozen goals');
+    expect(state.weeks[0].isFrozen).toBe(true);
   });
 
   it('should handle deletePlanningWeek', () => {

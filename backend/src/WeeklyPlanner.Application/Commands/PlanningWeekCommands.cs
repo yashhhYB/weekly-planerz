@@ -57,3 +57,42 @@ public class DeletePlanningWeekCommand : IRequest<Result<bool>>
         Id = id;
     }
 }
+
+/// <summary>
+/// Command to start a planning week (Setup -> InProgress)
+/// </summary>
+public class StartPlanningWeekCommand : IRequest<Result<PlanningWeekDto>>
+{
+    public Guid Id { get; set; }
+
+    public StartPlanningWeekCommand(Guid id)
+    {
+        Id = id;
+    }
+}
+
+/// <summary>
+/// Command to complete a planning week (InProgress -> Completed)
+/// </summary>
+public class CompletePlanningWeekCommand : IRequest<Result<PlanningWeekDto>>
+{
+    public Guid Id { get; set; }
+
+    public CompletePlanningWeekCommand(Guid id)
+    {
+        Id = id;
+    }
+}
+
+/// <summary>
+/// Command to archive a planning week (Completed -> Archived)
+/// </summary>
+public class ArchivePlanningWeekCommand : IRequest<Result<PlanningWeekDto>>
+{
+    public Guid Id { get; set; }
+
+    public ArchivePlanningWeekCommand(Guid id)
+    {
+        Id = id;
+    }
+}
