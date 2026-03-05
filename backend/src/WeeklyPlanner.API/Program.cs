@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using WeeklyPlanner.Infrastructure;
+using WeeklyPlanner.Infrastructure.Persistence;
 using WeeklyPlanner.Application;
 using WeeklyPlanner.API.Middleware;
 
@@ -27,6 +29,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Auto-apply pending EF Core migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 
 // Middleware
 app.UseSwagger();
