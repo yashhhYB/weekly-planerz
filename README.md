@@ -61,50 +61,59 @@ PostgreSQL Database
 ## Repository Structure
 
 ```
-weekly-planner/
+weekly-planner-system/
 │
-├── .github/
-│   ├── workflows/
-│   │   ├── backend-ci.yml        # .NET build, test, coverage
-│   │   ├── frontend-ci.yml       # Node lint, test, build  
-│   │   ├── quality-gate.yml      # PR validation gate
-│   │   └── deploy.yml            # Azure deployment
-│   ├── CODEOWNERS
-│   └── pull_request_template.md
+├── README.md
+├── LICENSE
+├── .gitignore
+├── docker-compose.yml
+│
+├── docs/
+│   ├── architecture.md
+│   ├── system-design.md
+│   ├── planning-rules.md
+│   ├── business-rules.md
+│   ├── api-contract.md
+│   ├── decisions.md
+│   └── screenshots/
+│
+├── diagrams/
+│   └── README.md
 │
 ├── backend/
-│   ├── src/
-│   │   ├── WeeklyPlanner.Domain/        # Core business logic
-│   │   ├── WeeklyPlanner.Application/   # Use cases (CQRS)
-│   │   ├── WeeklyPlanner.Infrastructure/# Data access
-│   │   └── WeeklyPlanner.API/           # HTTP endpoints
-│   ├── tests/
-│   │   └── WeeklyPlanner.UnitTests/     # 100% coverage
+│   ├── WeeklyPlanner.API/           # HTTP endpoints
+│   ├── WeeklyPlanner.Application/   # Use cases (CQRS)
+│   ├── WeeklyPlanner.Domain/        # Core business logic
+│   ├── WeeklyPlanner.Infrastructure/# Data access
+│   ├── WeeklyPlanner.Tests/         # Unit tests
+│   ├── WeeklyPlanner.IntegrationTests/
 │   ├── WeeklyPlanner.sln
 │   └── Dockerfile
 │
 ├── frontend/
 │   ├── src/
-│   │   └── app/                  # Angular application
-│   ├── e2e/                      # End-to-end tests
-│   └── Dockerfile
+│   │   └── app/                     # Angular application
+│   ├── Dockerfile
+│   └── ...
 │
-├── docs/
-│   ├── architecture.md           # System design
-│   ├── business-rules.md         # Domain rules with tests
-│   ├── api-contract.md           # REST API specification
-│   └── decisions.md              # Architecture Decision Records
+├── tests/
+│   ├── integration-tests/
+│   └── e2e-tests/
 │
 ├── scripts/
-│   ├── dev-setup.ps1             # Windows setup automation
-│   ├── dev-setup.sh              # Unix setup automation
-│   └── seed-data.sql             # Test data
+│   ├── deploy-to-azure.ps1
+│   ├── dev-setup.ps1
+│   ├── dev-setup.sh
+│   └── seed-data.sql
 │
-├── docker-compose.yml            # Local PostgreSQL
-├── .editorconfig                 # Code style enforcement
-├── .gitignore
-├── README.md
-└── LICENSE
+└── .github/
+    ├── CODEOWNERS
+    ├── pull_request_template.md
+    └── workflows/
+        ├── backend-ci.yml
+        ├── frontend-ci.yml
+        ├── quality-gate.yml
+        └── deploy.yml
 ```
 
 ---
@@ -124,7 +133,7 @@ cd backend
 dotnet restore
 dotnet build
 dotnet test
-dotnet run
+dotnet run --project WeeklyPlanner.API/
 ```
 
 API: `http://localhost:5000/swagger`
@@ -229,8 +238,8 @@ refactor: Code improvements
 ### GitHub Secrets Required
 
 ```
-AZURE_BACKEND_PUBLISH_PROFILE    # Azure App Service deployment
-AZURE_STATIC_WEB_APP_TOKEN       # Azure Static Web App token
+AZURE_CREDENTIALS                # Azure service principal JSON
+STATIC_WEB_APPS_TOKEN            # Azure Static Web App deployment token
 ```
 
 ### Deployment Targets

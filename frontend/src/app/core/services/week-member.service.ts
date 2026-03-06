@@ -56,6 +56,12 @@ export class WeekMemberService {
     );
   }
 
+  unsubmitPlan(weekMemberId: string): Observable<WeekMember> {
+    return this.http.post<ApiResponse<WeekMember>>(`${this.apiUrl}/members/${weekMemberId}/unsubmit`, {}).pipe(
+      map(res => res.data!)
+    );
+  }
+
   updateProgress(taskId: string, request: UpdateProgressRequest): Observable<MemberTask> {
     return this.http.put<ApiResponse<MemberTask>>(`${this.apiUrl}/tasks/${taskId}/progress`, request).pipe(
       map(res => res.data!)

@@ -69,24 +69,24 @@ import * as PlanningActions from '../../../../store/planning/planning.actions';
   styles: [`
     .page { padding: 32px 0; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-    .page-header h1 { margin: 0 0 4px 0; font-size: 28px; color: #f0f6fc; }
-    .page-desc { margin: 0; color: #8b949e; font-size: 14px; }
+    .page-header h1 { margin: 0 0 4px 0; font-size: 28px; color: var(--text-heading); }
+    .page-desc { margin: 0; color: var(--text-secondary); font-size: 14px; }
 
     .btn-create {
       display: flex; align-items: center; gap: 6px;
-      padding: 10px 20px; background: #238636; color: white;
+      padding: 10px 20px; background: var(--success); color: white;
       border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
       transition: background 0.2s;
     }
     .btn-create:hover { background: #2ea043; }
     .btn-create span { font-size: 18px; }
 
-    .loading { text-align: center; padding: 60px; color: #8b949e; }
+    .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
 
-    .empty { text-align: center; padding: 80px 20px; color: #8b949e; }
+    .empty { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
     .empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty p { margin: 0 0 4px 0; font-size: 18px; color: #e1e4e8; }
-    .empty small { color: #8b949e; }
+    .empty p { margin: 0 0 4px 0; font-size: 18px; color: var(--text-primary); }
+    .empty small { color: var(--text-secondary); }
 
     .cards-grid {
       display: grid;
@@ -95,14 +95,14 @@ import * as PlanningActions from '../../../../store/planning/planning.actions';
     }
 
     .week-card {
-      background: #161b22;
-      border: 1px solid #30363d;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 8px;
       padding: 20px;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .week-card:hover { border-color: #58a6ff; transform: translateY(-2px); }
+    .week-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
 
     .card-top { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 
@@ -110,35 +110,35 @@ import * as PlanningActions from '../../../../store/planning/planning.actions';
       padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
     }
     .s-1 { background: rgba(210,153,34,0.2); color: #d29922; }
-    .s-2 { background: rgba(31,111,235,0.2); color: #58a6ff; }
-    .s-3 { background: rgba(35,134,54,0.2); color: #3fb950; }
-    .s-4 { background: rgba(139,148,158,0.2); color: #8b949e; }
+    .s-2 { background: rgba(31,111,235,0.2); color: var(--accent); }
+    .s-3 { background: rgba(35,134,54,0.2); color: var(--success); }
+    .s-4 { background: rgba(139,148,158,0.2); color: var(--text-secondary); }
     .frozen-badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; background: rgba(56,182,255,0.15); color: #79c0ff; }
 
-    .week-card h3 { margin: 0 0 4px 0; color: #f0f6fc; font-size: 18px; }
-    .date-range { margin: 0 0 16px 0; font-size: 13px; color: #8b949e; }
+    .week-card h3 { margin: 0 0 4px 0; color: var(--text-heading); font-size: 18px; }
+    .date-range { margin: 0 0 16px 0; font-size: 13px; color: var(--text-secondary); }
 
     .alloc-bars { margin-bottom: 16px; }
     .alloc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .alloc-label { min-width: 65px; font-size: 12px; color: #8b949e; }
-    .alloc-track { flex: 1; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+    .alloc-label { min-width: 65px; font-size: 12px; color: var(--text-secondary); }
+    .alloc-track { flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
     .alloc-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-    .alloc-fill.client { background: #1f6feb; }
-    .alloc-fill.techdebt { background: #da3633; }
-    .alloc-fill.rnd { background: #238636; }
-    .alloc-val { min-width: 35px; text-align: right; font-size: 13px; color: #e1e4e8; font-weight: 600; }
+    .alloc-fill.client { background: var(--accent); }
+    .alloc-fill.techdebt { background: var(--danger); }
+    .alloc-fill.rnd { background: var(--success); }
+    .alloc-val { min-width: 35px; text-align: right; font-size: 13px; color: var(--text-primary); font-weight: 600; }
 
-    .card-footer { border-top: 1px solid #21262d; padding-top: 12px; }
+    .card-footer { border-top: 1px solid var(--bg-tertiary); padding-top: 12px; }
 
     .btn-edit {
-      padding: 6px 14px; background: #21262d; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px; cursor: pointer; font-size: 12px;
+      padding: 6px 14px; background: var(--bg-tertiary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;
       transition: all 0.2s;
     }
-    .btn-edit:hover:not(:disabled) { background: #30363d; border-color: #58a6ff; }
+    .btn-edit:hover:not(:disabled) { background: var(--border); border-color: var(--border-hover); }
     .btn-edit:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
   `]
 })
 export class PlanningListComponent implements OnInit {

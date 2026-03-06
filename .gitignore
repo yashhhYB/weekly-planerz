@@ -67,3 +67,4 @@ appsettings.development.json
 publish-profile.xml
 deploy-output.log
 postgres-setup.log
+azure-deployment-config.json

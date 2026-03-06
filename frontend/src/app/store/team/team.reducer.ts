@@ -2,6 +2,12 @@ import { createReducer, on } from '@ngrx/store';
 import { TeamMember } from '../../models';
 import * as TeamActions from './team.actions';
 
+/**
+ * Team Reducer
+ * Manages the team members state: loading, CRUD operations, and lead role assignment.
+ * When a new lead is set, the previous lead is automatically demoted.
+ */
+
 export interface TeamState {
   members: TeamMember[];
   loading: boolean;

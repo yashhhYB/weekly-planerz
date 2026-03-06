@@ -13,6 +13,14 @@ import { AppStoreState } from './store';
 import * as TeamActions from './store/team/team.actions';
 import * as TeamSelectors from './store/team/team.selectors';
 
+/**
+ * Root application component.
+ *
+ * Hosts the navbar (with user-switcher, theme toggle, and data-management
+ * controls), the router outlet, and the footer. Manages the currently
+ * selected user via {@link UserContextService} and exposes role-based
+ * navigation guards for the template.
+ */
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -22,33 +30,25 @@ import * as TeamSelectors from './store/team/team.selectors';
     <nav class="navbar" *ngIf="!hideNav">
       <div class="nav-container">
         <a routerLink="/home" class="nav-brand">
-          <span class="brand-icon">📅</span>
-          <div>
-            <h1>Weekly Plan Tracker</h1>
-          </div>
+          <div class="brand-logo">&lt;weekly/<span class="brand-accent">plannerz</span>&gt;</div>
         </a>
 
         <ul class="nav-links">
           <li><a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <span class="nav-icon">🏠</span> Home
-          </a></li>
-          <li *ngIf="currentUser?.role === 2"><a routerLink="/planning" routerLinkActive="active">
-            <span class="nav-icon">📋</span> Planning
+            <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span> Home
           </a></li>
           <li><a routerLink="/backlog" routerLinkActive="active">
-            <span class="nav-icon">📝</span> Backlog
-          </a></li>
-          <li *ngIf="currentUser?.role === 2"><a routerLink="/team" routerLinkActive="active">
-            <span class="nav-icon">👥</span> Team
+            <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></span> Backlog
           </a></li>
           <li><a routerLink="/weeks" routerLinkActive="active">
-            <span class="nav-icon">📅</span> Past Weeks
+            <span class="nav-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span> Past Weeks
           </a></li>
         </ul>
 
         <!-- Theme Toggle -->
         <button class="theme-toggle" (click)="toggleTheme()" [title]="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
-          {{ isDark ? '☀️' : '🌙' }}
+          <svg *ngIf="isDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg *ngIf="!isDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
 
         <!-- User Switcher -->
@@ -61,7 +61,7 @@ import * as TeamSelectors from './store/team/team.selectors';
               <span class="user-name">{{ currentUser.name }}</span>
               <span class="user-role">{{ currentUser.role === 2 ? 'Team Lead' : 'Team Member' }}</span>
             </div>
-            <span class="switch-icon">⇅</span>
+            <span class="switch-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 15 12 20 17 15"></polyline><polyline points="7 9 12 4 17 9"></polyline></svg></span>
           </div>
 
           <div class="switcher-dropdown" *ngIf="showSwitcher">
@@ -92,22 +92,21 @@ import * as TeamSelectors from './store/team/team.selectors';
     <footer class="app-footer" *ngIf="!hideNav">
       <div class="footer-container">
         <div class="footer-brand">
-          <span class="footer-logo">📅</span>
-          <span class="footer-title">Weekly Plan Tracker</span>
+          <span class="footer-title">&lt;weekly/<span class="footer-accent">plannerz</span>&gt;</span>
         </div>
         <div class="footer-actions">
           <button class="footer-btn download" (click)="downloadData()" [disabled]="footerBusy" title="Download backup">
-            <span class="fb-icon">💾</span> <span class="fb-label">Download</span>
+            <span class="fb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span> <span class="fb-label">Download</span>
           </button>
           <button class="footer-btn load" (click)="fileInput.click()" [disabled]="footerBusy" title="Load from file">
-            <span class="fb-icon">📂</span> <span class="fb-label">Load</span>
+            <span class="fb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span> <span class="fb-label">Load</span>
           </button>
           <button class="footer-btn seed" (click)="seedSampleData()" [disabled]="footerBusy" title="Seed sample data">
-            <span class="fb-icon">🌱</span> <span class="fb-label">Seed</span>
+            <span class="fb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="14"></line><line x1="9" y1="11" x2="15" y2="11"></line></svg></span> <span class="fb-label">Seed</span>
           </button>
           <span class="footer-divider"></span>
           <button class="footer-btn reset" (click)="confirmReset()" [disabled]="footerBusy" title="Reset all data">
-            <span class="fb-icon">🔄</span> <span class="fb-label">Reset</span>
+            <span class="fb-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span> <span class="fb-label">Reset</span>
           </button>
         </div>
       </div>
@@ -117,7 +116,7 @@ import * as TeamSelectors from './store/team/team.selectors';
     <!-- Confirm Modal -->
     <div class="modal-backdrop" *ngIf="showConfirm" (click)="showConfirm = false">
       <div class="modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-icon">{{ confirmIcon }}</div>
+        <div class="modal-icon" [innerHTML]="confirmIcon"></div>
         <h3 class="modal-title">{{ confirmTitle }}</h3>
         <p class="modal-msg">{{ confirmMessage }}</p>
         <div class="modal-actions">
@@ -130,21 +129,20 @@ import * as TeamSelectors from './store/team/team.selectors';
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg-base, #0f1117); }
     .navbar {
-      background: var(--bg-card, #161b22); border-bottom: 1px solid var(--border, #30363d);
+      background: var(--navbar-bg, #1e2228); border-bottom: 1px solid var(--border, #30363d);
       position: sticky; top: 0; z-index: 1000;
-      backdrop-filter: blur(12px); background: rgba(22, 27, 34, 0.92);
     }
     .nav-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 24px; height: 56px; }
     .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-    .brand-icon { font-size: 22px; }
-    .nav-brand h1 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-heading, #f0f6fc); letter-spacing: -0.3px; white-space: nowrap; }
+    .brand-logo { font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 18px; font-weight: 700; color: var(--text-secondary, #8b949e); letter-spacing: -0.5px; white-space: nowrap; }
+    .brand-accent { color: var(--accent, #1f6feb); }
     .nav-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; flex: 1; }
     .nav-links a {
       color: var(--text-secondary, #8b949e); text-decoration: none; font-weight: 500; font-size: 13px;
       padding: 7px 14px; border-radius: 8px; transition: all 0.2s;
       display: flex; align-items: center; gap: 6px; white-space: nowrap;
     }
-    .nav-icon { font-size: 14px; }
+    .nav-icon { display: flex; align-items: center; }
     .nav-links a:hover { color: var(--text-heading, #f0f6fc); background: var(--bg-tertiary, #21262d); }
     .nav-links a.active { color: #fff; background: var(--accent, #1f6feb); box-shadow: 0 2px 8px rgba(31,111,235,0.3); }
 
@@ -185,7 +183,7 @@ import * as TeamSelectors from './store/team/team.selectors';
     /* Sticky Footer */
     .app-footer {
       position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--bg-card, #161b22); border-top: 1px solid var(--border, #30363d);
+      background: var(--navbar-bg, #1e2228); border-top: 1px solid var(--border, #30363d);
       z-index: 999; padding: 10px 0;
     }
     .footer-container {
@@ -193,27 +191,27 @@ import * as TeamSelectors from './store/team/team.selectors';
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
     .footer-brand { display: flex; align-items: center; gap: 8px; }
-    .footer-logo { font-size: 18px; }
-    .footer-title { font-size: 13px; font-weight: 600; color: var(--text-secondary, #8b949e); white-space: nowrap; }
+    .footer-title { font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace; font-size: 13px; font-weight: 600; color: var(--text-secondary, #8b949e); white-space: nowrap; }
+    .footer-accent { color: var(--accent, #1f6feb); }
     .footer-actions { display: flex; gap: 8px; align-items: center; }
     .footer-divider { width: 1px; height: 24px; background: var(--border, #30363d); }
     .footer-btn {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border, #30363d);
       font-size: 13px; font-weight: 500; cursor: pointer;
-      transition: all 0.25s; background: var(--bg-tertiary, #21262d); color: var(--text-secondary, #c9d1d9);
+      transition: all 0.25s; background: var(--bg-tertiary, #21262d); color: var(--text-secondary, #8b949e);
     }
     .footer-btn:hover:not(:disabled) { border-color: var(--border-hover, #58a6ff); color: var(--text-heading, #f0f6fc); background: var(--bg-card-hover, #272d36); transform: translateY(-1px); }
     .footer-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .fb-icon { font-size: 14px; }
-    .footer-btn.download { border-color: rgba(0,190,255,0.3); color: #7dd3fc; }
-    .footer-btn.download:hover:not(:disabled) { background: rgba(0,190,255,0.1); border-color: #00bfff; color: #00d4ff; }
-    .footer-btn.load { border-color: rgba(139,92,246,0.3); color: #c4b5fd; }
-    .footer-btn.load:hover:not(:disabled) { background: rgba(139,92,246,0.1); border-color: #8b5cf6; color: #a78bfa; }
-    .footer-btn.seed { border-color: rgba(34,197,94,0.3); color: #86efac; }
-    .footer-btn.seed:hover:not(:disabled) { background: rgba(34,197,94,0.1); border-color: #22c55e; color: #4ade80; }
-    .footer-btn.reset { border-color: rgba(239,68,68,0.3); color: #fca5a5; }
-    .footer-btn.reset:hover:not(:disabled) { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #f87171; }
+    .fb-icon { display: flex; align-items: center; }
+    .footer-btn.download { border-color: rgba(31,111,235,0.3); color: var(--accent); }
+    .footer-btn.download:hover:not(:disabled) { background: var(--accent-subtle); border-color: var(--accent); }
+    .footer-btn.load { border-color: rgba(139,92,246,0.3); color: #a78bfa; }
+    .footer-btn.load:hover:not(:disabled) { background: rgba(139,92,246,0.1); border-color: #8b5cf6; }
+    .footer-btn.seed { border-color: rgba(34,197,94,0.3); color: var(--success); }
+    .footer-btn.seed:hover:not(:disabled) { background: rgba(34,197,94,0.1); border-color: var(--success); }
+    .footer-btn.reset { border-color: rgba(239,68,68,0.3); color: var(--danger); }
+    .footer-btn.reset:hover:not(:disabled) { background: rgba(239,68,68,0.1); border-color: var(--danger); }
 
     /* Confirm Modal */
     .modal-backdrop {
@@ -385,7 +383,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Normalize from sample format (isLead → role, etc.)
         const payload = this.normalizeImport(raw);
         this.openConfirm(
-          '📂', 'Load Data From File',
+          '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>', 'Load Data From File',
           `This will replace ALL current data with the contents of "${file.name}". Continue?`,
           'Load Data', false,
           () => this.executeImport(payload)
@@ -489,7 +487,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   seedSampleData(): void {
     this.openConfirm(
-      '🌱', 'Seed Sample Data',
+      '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="14"></line><line x1="9" y1="11" x2="15" y2="11"></line></svg>', 'Seed Sample Data',
       'This will replace ALL current data with sample data (4 members, 10 backlog items). Continue?',
       'Seed Data', false,
       () => {
@@ -513,7 +511,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   confirmReset(): void {
     this.openConfirm(
-      '⚠️', 'Reset Application',
+      '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>', 'Reset Application',
       'This will permanently delete ALL data (team members, backlog items, planning weeks). This cannot be undone.',
       'Reset Everything', true,
       () => {

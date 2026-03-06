@@ -1,63 +1,37 @@
 name: Backend CI
-# Continuous integration for .NET backend - runs on every push to main/develop
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
     paths:
       - 'backend/**'
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
-    
     defaults:
       run:
         working-directory: backend
 
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
+      - name: Restore
         run: dotnet restore
 
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run Tests  
-        run: dotnet test --configuration Release --no-build
-
-  # code-quality:
-  #   runs-on: ubuntu-latest
-  #   
-  #   defaults:
-  #     run:
-  #       working-directory: backend
-  #
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-  #
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: '8.0.x'
-  #
-  #     - name: Run StyleCop
-  #       run: dotnet build /p:StyleCopAnalyzersEnabled=true
-  #       continue-on-error: false
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal

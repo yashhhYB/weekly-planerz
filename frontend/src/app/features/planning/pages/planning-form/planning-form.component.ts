@@ -55,21 +55,32 @@ import { ToastService } from '../../../../core/services/toast.service';
 
         <div class="alloc-section">
           <h3>Category Allocation <span class="sub">(must sum to 100%)</span></h3>
-          <div class="alloc-row">
-            <div class="field">
-              <label for="clientPercent">Client Focused %</label>
-              <input type="number" id="clientPercent" formControlName="clientPercent" min="0" max="100" step="1" required />
-              <small class="hours-hint">{{ getClientHours() }}h</small>
+          <div class="alloc-sliders">
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="clientPercent">Client Focused</label>
+                <span class="slider-value blue">{{ form.get('clientPercent')?.value }}%</span>
+              </div>
+              <input type="range" id="clientPercent" formControlName="clientPercent" min="0" max="100" step="1" class="range-slider client" (input)="onSliderChange('client')" />
+              <small class="hours-hint">{{ getClientHours() }}h of 30h</small>
             </div>
-            <div class="field">
-              <label for="techDebtPercent">Tech Debt %</label>
-              <input type="number" id="techDebtPercent" formControlName="techDebtPercent" min="0" max="100" step="1" required />
-              <small class="hours-hint">{{ getTechDebtHours() }}h</small>
+            <div class="slider-group">
+              <div class="slider-header">
+                <label for="techDebtPercent">Tech Debt</label>
+                <span class="slider-value red">{{ form.get('techDebtPercent')?.value }}%</span>
+              </div>
+              <input type="range" id="techDebtPercent" formControlName="techDebtPercent" min="0" max="100" step="1" class="range-slider techdebt" (input)="onSliderChange('techDebt')" />
+              <small class="hours-hint">{{ getTechDebtHours() }}h of 30h</small>
             </div>
-            <div class="field">
-              <label for="rndPercent">R&D %</label>
-              <input type="number" id="rndPercent" formControlName="rndPercent" min="0" max="100" step="1" required />
-              <small class="hours-hint">{{ getRndHours() }}h</small>
+            <div class="slider-group rnd-group">
+              <div class="slider-header">
+                <label>R&D</label>
+                <span class="slider-value green">{{ form.get('rndPercent')?.value }}%</span>
+              </div>
+              <div class="rnd-bar-track">
+                <div class="rnd-bar-fill" [style.width.%]="form.get('rndPercent')?.value"></div>
+              </div>
+              <small class="hours-hint">{{ getRndHours() }}h of 30h <span class="auto-tag">auto-calculated</span></small>
             </div>
           </div>
           <div class="total-row" [class.invalid]="getTotal() !== 100">
@@ -91,89 +102,127 @@ import { ToastService } from '../../../../core/services/toast.service';
   `,
   styles: [`
     .page { padding: 32px 0; max-width: 640px; margin: 0 auto; }
-    .page h1 { margin: 0 0 4px 0; font-size: 28px; color: #f0f6fc; }
-    .page-desc { margin: 0 0 24px; color: #8b949e; font-size: 14px; }
+    .page h1 { margin: 0 0 4px 0; font-size: 28px; color: var(--text-heading); }
+    .page-desc { margin: 0 0 24px; color: var(--text-secondary); font-size: 14px; }
 
     .form-card {
-      background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px;
     }
 
     .field { margin-bottom: 18px; }
-    label { display: block; margin-bottom: 6px; font-weight: 500; color: #e1e4e8; font-size: 14px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-primary); font-size: 14px; }
 
     input[type="date"], input[type="number"] {
       width: 100%; padding: 10px 12px;
-      background: #0d1117; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px;
+      background: var(--bg-input); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; font-family: inherit; box-sizing: border-box;
       transition: border-color 0.2s;
     }
-    input:focus { outline: none; border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(31,111,235,0.15); }
+    input:focus { outline: none; border-color: var(--border-hover); box-shadow: 0 0 0 3px rgba(31,111,235,0.15); }
 
-    .hint { display: block; margin-top: 4px; color: #8b949e; font-size: 12px; }
-    .error-hint { display: block; margin-top: 4px; color: #f85149; font-size: 12px; font-weight: 500; }
-    .hours-hint { display: block; margin-top: 4px; color: #58a6ff; font-size: 12px; font-weight: 600; }
+    .hint { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+    .error-hint { display: block; margin-top: 4px; color: var(--danger); font-size: 12px; font-weight: 500; }
+    .hours-hint { display: block; margin-top: 4px; color: var(--accent); font-size: 12px; font-weight: 600; }
 
     /* Members Section */
     .members-section {
-      background: #0d1117; border: 1px solid #21262d; border-radius: 8px;
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
       padding: 20px; margin-bottom: 20px;
     }
-    .members-section h3 { margin: 0 0 14px; color: #f0f6fc; font-size: 16px; }
-    .members-section h3 .sub { font-weight: 400; color: #8b949e; font-size: 13px; }
+    .members-section h3 { margin: 0 0 14px; color: var(--text-heading); font-size: 16px; }
+    .members-section h3 .sub { font-weight: 400; color: var(--text-secondary); font-size: 13px; }
     .member-checkboxes { display: flex; flex-direction: column; gap: 8px; }
     .member-check {
       display: flex; align-items: center; gap: 12px; padding: 10px 14px;
-      background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
       cursor: pointer; transition: all 0.2s; position: relative;
     }
-    .member-check:hover { border-color: #58a6ff; }
-    .member-check.selected { border-color: #238636; background: rgba(35,134,54,0.08); }
+    .member-check:hover { border-color: var(--border-hover); }
+    .member-check.selected { border-color: var(--success); background: rgba(35,134,54,0.08); }
     .member-check input[type="checkbox"] { display: none; }
-    .member-avatar { width: 34px; height: 34px; border-radius: 50%; background: #30363d; display: flex; align-items: center; justify-content: center; color: #e1e4e8; font-weight: 700; font-size: 14px; flex-shrink: 0; }
-    .member-avatar.lead { background: #1f6feb; }
+    .member-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; color: var(--text-primary); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .member-avatar.lead { background: var(--accent); color: #fff; }
     .member-info { flex: 1; }
-    .member-name { display: block; color: #f0f6fc; font-size: 14px; font-weight: 500; }
-    .member-role { display: block; color: #8b949e; font-size: 12px; }
-    .check-icon { color: #3fb950; font-size: 18px; font-weight: 700; }
-    .selected-count { margin-top: 10px; font-size: 13px; color: #8b949e; text-align: right; }
-    .empty-members { text-align: center; padding: 16px; color: #8b949e; font-size: 14px; }
-    .empty-members a { color: #58a6ff; text-decoration: none; }
+    .member-name { display: block; color: var(--text-heading); font-size: 14px; font-weight: 500; }
+    .member-role { display: block; color: var(--text-secondary); font-size: 12px; }
+    .check-icon { color: var(--success); font-size: 18px; font-weight: 700; }
+    .selected-count { margin-top: 10px; font-size: 13px; color: var(--text-secondary); text-align: right; }
+    .empty-members { text-align: center; padding: 16px; color: var(--text-secondary); font-size: 14px; }
+    .empty-members a { color: var(--accent); text-decoration: none; }
 
     .alloc-section {
-      background: #0d1117; border: 1px solid #21262d; border-radius: 8px;
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
       padding: 20px; margin-bottom: 20px;
     }
-    .alloc-section h3 { margin: 0 0 16px 0; color: #f0f6fc; font-size: 16px; }
-    .alloc-section h3 .sub { font-weight: 400; color: #8b949e; font-size: 13px; }
+    .alloc-section h3 { margin: 0 0 16px 0; color: var(--text-heading); font-size: 16px; }
+    .alloc-section h3 .sub { font-weight: 400; color: var(--text-secondary); font-size: 13px; }
 
     .alloc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
+    .alloc-sliders { display: flex; flex-direction: column; gap: 20px; }
+    .slider-group { display: flex; flex-direction: column; gap: 6px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; }
+    .slider-header label { margin-bottom: 0; font-weight: 600; }
+    .slider-value { font-size: 18px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .slider-value.blue { color: var(--accent); }
+    .slider-value.red { color: var(--danger); }
+    .slider-value.green { color: var(--success); }
+    .auto-tag { font-size: 10px; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+
+    .range-slider {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px;
+      border-radius: 4px; outline: none; cursor: pointer;
+      background: var(--bg-tertiary);
+      border: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      cursor: pointer; border: 3px solid var(--bg-card);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.15s;
+    }
+    .range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    .range-slider::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      cursor: pointer; border: 3px solid var(--bg-card);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .range-slider.client::-webkit-slider-thumb { background: var(--accent); }
+    .range-slider.client::-moz-range-thumb { background: var(--accent); }
+    .range-slider.techdebt::-webkit-slider-thumb { background: var(--danger); }
+    .range-slider.techdebt::-moz-range-thumb { background: var(--danger); }
+
+    .rnd-bar-track { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
+    .rnd-bar-fill { height: 100%; background: var(--success); border-radius: 4px; transition: width 0.2s; }
+
+    .rnd-group { opacity: 0.85; }
+
     .total-row {
       margin-top: 14px; padding: 10px; text-align: center;
-      background: rgba(35,134,54,0.15); border-radius: 6px; color: #3fb950;
+      background: rgba(35,134,54,0.15); border-radius: 6px; color: var(--success);
     }
-    .total-row.invalid { background: rgba(248,81,73,0.15); color: #f85149; }
+    .total-row.invalid { background: rgba(248,81,73,0.15); color: var(--danger); }
     .total-error { margin-left: 8px; font-size: 12px; }
 
     .form-actions { display: flex; gap: 10px; margin-top: 24px; }
 
     .btn-save {
-      flex: 1; padding: 12px 20px; background: #238636; color: white;
+      flex: 1; padding: 12px 20px; background: var(--success); color: white;
       border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
       transition: background 0.2s;
     }
-    .btn-save:hover:not(:disabled) { background: #2ea043; }
+    .btn-save:hover:not(:disabled) { background: var(--success-hover); }
     .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .btn-cancel {
-      flex: 1; padding: 12px 20px; background: #21262d; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px; cursor: pointer; font-size: 14px;
+      flex: 1; padding: 12px 20px; background: var(--bg-tertiary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 14px;
       transition: all 0.2s;
     }
-    .btn-cancel:hover { background: #30363d; border-color: #58a6ff; }
+    .btn-cancel:hover { background: var(--border); border-color: var(--border-hover); }
 
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
 
     @media (max-width: 640px) { .alloc-row { grid-template-columns: 1fr; } }
   `]
@@ -272,10 +321,27 @@ export class PlanningFormComponent implements OnInit, OnDestroy {
   private initializeForm(): void {
     this.form = this.fb.group({
       planningDate: ['', Validators.required],
-      clientPercent: [34, [Validators.required, Validators.min(0), Validators.max(100)]],
-      techDebtPercent: [33, [Validators.required, Validators.min(0), Validators.max(100)]],
-      rndPercent: [33, [Validators.required, Validators.min(0), Validators.max(100)]]
+      clientPercent: [40, [Validators.required, Validators.min(0), Validators.max(100)]],
+      techDebtPercent: [30, [Validators.required, Validators.min(0), Validators.max(100)]],
+      rndPercent: [30, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
+  }
+
+  onSliderChange(changed: 'client' | 'techDebt'): void {
+    const client = this.form.get('clientPercent')?.value || 0;
+    const techDebt = this.form.get('techDebtPercent')?.value || 0;
+    const sum = client + techDebt;
+    if (sum > 100) {
+      // Cap the other slider
+      if (changed === 'client') {
+        this.form.get('techDebtPercent')?.setValue(100 - client, { emitEvent: false });
+      } else {
+        this.form.get('clientPercent')?.setValue(100 - techDebt, { emitEvent: false });
+      }
+    }
+    const c = this.form.get('clientPercent')?.value || 0;
+    const t = this.form.get('techDebtPercent')?.value || 0;
+    this.form.get('rndPercent')?.setValue(Math.max(0, 100 - c - t), { emitEvent: false });
   }
 
   getTotal(): number {

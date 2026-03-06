@@ -15,13 +15,25 @@ import { ToastService } from '../../../../core/services/toast.service';
   template: `
     <div class="page-container">
       <div class="page-header">
-        <div>
-          <h1>📋 Planning Board</h1>
-          <p class="subtitle" *ngIf="weekMember">{{ weekMember.memberName }}'s Week Plan</p>
+        <div class="header-left">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <div>
+            <h1>Planning Board</h1>
+            <p class="subtitle" *ngIf="weekMember">{{ weekMember.memberName }}'s Week Plan</p>
+          </div>
         </div>
         <div class="header-actions">
-          <a [routerLink]="['/planning', weekId]" class="btn-back">← Back to Week</a>
-          <a routerLink="/home" class="btn-back">🏠 Home</a>
+          <a [routerLink]="['/planning', weekId]" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Week
+          </a>
+          <a routerLink="/home" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </a>
         </div>
       </div>
 
@@ -30,7 +42,8 @@ import { ToastService } from '../../../../core/services/toast.service';
       <div *ngIf="!loading && weekMember" class="board-layout">
         <!-- Submitted Banner -->
         <div class="submitted-banner" *ngIf="weekMember.hasSubmitted">
-          ✅ Plan submitted ({{ weekMember.totalPlannedHours }}h planned)
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Plan submitted ({{ weekMember.totalPlannedHours }}h planned)
         </div>
 
         <!-- Hours Summary Bar -->
@@ -45,8 +58,13 @@ import { ToastService } from '../../../../core/services/toast.service';
           <div class="hours-track">
             <div class="hours-fill" [style.width.%]="(totalPlanned / 30) * 100 | number:'1.0-0'" [class.full]="totalPlanned >= 30" [class.over]="totalPlanned > 30"></div>
           </div>
-          <button class="btn-submit" (click)="submitPlan()" [disabled]="weekMember.hasSubmitted || totalPlanned !== 30">
-            {{ weekMember.hasSubmitted ? '✅ Submitted' : 'Submit Plan' }}
+          <button class="btn-submit" *ngIf="!weekMember.hasSubmitted" (click)="submitPlan()" [disabled]="totalPlanned !== 30">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            I'm Done Planning
+          </button>
+          <button class="btn-unsubmit" *ngIf="weekMember.hasSubmitted" (click)="unsubmitPlan()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Undo — I'm Not Done Yet
           </button>
         </div>
 
@@ -114,69 +132,73 @@ import { ToastService } from '../../../../core/services/toast.service';
   styles: [`
     .page-container { max-width: 1200px; margin: 0 auto; padding: 24px 0; }
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-    .page-header h1 { color: #f0f6fc; margin: 0 0 4px; font-size: 24px; }
-    .subtitle { color: #8b949e; margin: 0; font-size: 14px; }
+    .page-header h1 { color: var(--text-heading); margin: 0 0 4px; font-size: 24px; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-icon { color: var(--accent); }
+    .subtitle { color: var(--text-secondary); margin: 0; font-size: 14px; }
     .header-actions { display: flex; gap: 8px; }
-    .btn-back { color: #58a6ff; text-decoration: none; font-size: 14px; padding: 8px 16px; border: 1px solid #30363d; border-radius: 8px; }
-    .btn-back:hover { background: #161b22; }
-    .loading { text-align: center; padding: 60px; color: #8b949e; }
+    .btn-back { color: var(--text-secondary); text-decoration: none; font-size: 13px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; background: none; }
+    .btn-back:hover { background: var(--bg-card); color: var(--text-heading); border-color: var(--border-hover); }
+    .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
 
-    .submitted-banner { background: rgba(35,134,54,0.15); border: 1px solid rgba(35,134,54,0.4); color: #3fb950; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; text-align: center; }
+    .submitted-banner { background: rgba(35,134,54,0.15); border: 1px solid rgba(35,134,54,0.4); color: var(--success); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-    .hours-bar { display: flex; align-items: center; gap: 16px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .hours-bar { display: flex; align-items: center; gap: 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
     .hours-info { display: flex; align-items: baseline; gap: 4px; min-width: 90px; }
-    .hours-used { font-size: 22px; font-weight: 700; color: #58a6ff; }
-    .hours-used.full { color: #3fb950; }
-    .hours-used.over { color: #f85149; }
-    .hours-sep { color: #484f58; font-size: 18px; }
-    .hours-total { color: #8b949e; font-size: 16px; }
-    .hours-track { flex: 1; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; }
-    .hours-fill { height: 100%; background: #1f6feb; border-radius: 4px; transition: width 0.3s; }
-    .hours-fill.full { background: #238636; }
-    .hours-fill.over { background: #da3633; }
-    .btn-submit { background: #238636; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .hours-used { font-size: 22px; font-weight: 700; color: var(--accent); }
+    .hours-used.full { color: var(--success); }
+    .hours-used.over { color: var(--danger); }
+    .hours-sep { color: var(--text-muted); font-size: 18px; }
+    .hours-total { color: var(--text-secondary); font-size: 16px; }
+    .hours-track { flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
+    .hours-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.3s; }
+    .hours-fill.full { background: var(--success); }
+    .hours-fill.over { background: var(--danger); }
+    .btn-submit { background: var(--success); border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
     .btn-submit:hover:not(:disabled) { background: #2ea043; }
     .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-unsubmit { background: rgba(210,153,34,0.15); border: 1px solid rgba(210,153,34,0.4); color: #d29922; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .btn-unsubmit:hover { background: rgba(210,153,34,0.25); }
 
     .category-quotas { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-    .quota { display: flex; align-items: center; gap: 8px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 200px; }
+    .quota { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 200px; }
     .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .cat-name { color: #e1e4e8; font-size: 13px; font-weight: 500; }
-    .cat-hours { color: #8b949e; font-size: 13px; margin-left: auto; }
-    .quota-track { width: 60px; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+    .cat-name { color: var(--text-primary); font-size: 13px; font-weight: 500; }
+    .cat-hours { color: var(--text-secondary); font-size: 13px; margin-left: auto; }
+    .quota-track { width: 60px; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
     .quota-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
 
     .two-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .panel { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
-    .panel h2 { color: #f0f6fc; font-size: 16px; margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid #21262d; }
+    .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .panel h2 { color: var(--text-heading); font-size: 16px; margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--bg-tertiary); }
 
     .search-box { margin-bottom: 12px; }
-    .search-input { width: 100%; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #e1e4e8; font-size: 14px; box-sizing: border-box; }
-    .search-input:focus { outline: none; border-color: #58a6ff; }
+    .search-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text-primary); font-size: 14px; box-sizing: border-box; }
+    .search-input:focus { outline: none; border-color: var(--border-hover); }
 
     .task-list { display: flex; flex-direction: column; gap: 8px; max-height: 500px; overflow-y: auto; }
-    .task-card, .assigned-card { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 12px; }
-    .task-card:hover, .assigned-card:hover { border-color: #30363d; }
+    .task-card, .assigned-card { background: var(--bg-input); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 12px; }
+    .task-card:hover, .assigned-card:hover { border-color: var(--border); }
     .task-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .cat-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
-    .cat-1 { background: rgba(31,111,235,0.2); color: #58a6ff; }
-    .cat-2 { background: rgba(218,54,51,0.2); color: #f85149; }
-    .cat-3 { background: rgba(35,134,54,0.2); color: #3fb950; }
-    .est-hours { color: #8b949e; font-size: 12px; }
-    .planned-hours { color: #58a6ff; font-size: 12px; font-weight: 600; }
-    .task-title { color: #e1e4e8; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-    .task-desc { color: #8b949e; font-size: 12px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-1 { background: rgba(31,111,235,0.2); color: var(--accent); }
+    .cat-2 { background: rgba(218,54,51,0.2); color: var(--danger); }
+    .cat-3 { background: rgba(35,134,54,0.2); color: var(--success); }
+    .est-hours { color: var(--text-secondary); font-size: 12px; }
+    .planned-hours { color: var(--accent); font-size: 12px; font-weight: 600; }
+    .task-title { color: var(--text-primary); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .task-desc { color: var(--text-secondary); font-size: 12px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .task-bottom { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-    .hours-input { width: 70px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 6px 8px; color: #e1e4e8; font-size: 13px; }
-    .hours-input:focus { outline: none; border-color: #58a6ff; }
-    .btn-assign { background: #238636; border: none; color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .hours-input { width: 70px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; color: var(--text-primary); font-size: 13px; }
+    .hours-input:focus { outline: none; border-color: var(--border-hover); }
+    .btn-assign { background: var(--success); border: none; color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-assign:hover:not(:disabled) { background: #2ea043; }
     .btn-assign:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-remove { background: rgba(218,54,51,0.1); border: 1px solid rgba(218,54,51,0.3); color: #f85149; padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+    .btn-remove { background: rgba(218,54,51,0.1); border: 1px solid rgba(218,54,51,0.3); color: var(--danger); padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
     .btn-remove:hover { background: rgba(218,54,51,0.2); }
 
-    .empty { text-align: center; padding: 24px; color: #8b949e; font-size: 14px; }
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .empty { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 14px; }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
 
     @media (max-width: 768px) {
       .two-panels { grid-template-columns: 1fr; }
@@ -292,6 +314,18 @@ export class MemberBoardComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.toast.error(err?.error?.message || 'Failed to submit plan');
+      }
+    });
+  }
+
+  unsubmitPlan() {
+    this.weekMemberService.unsubmitPlan(this.weekMemberId).subscribe({
+      next: () => {
+        this.toast.success('Plan unsubmitted — you can continue editing.');
+        this.loadData();
+      },
+      error: (err) => {
+        this.toast.error(err?.error?.message || 'Failed to unsubmit plan');
       }
     });
   }

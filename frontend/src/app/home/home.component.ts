@@ -31,7 +31,9 @@ import { ToastService } from '../core/services/toast.service';
             <p class="greeting-label">Welcome back</p>
             <h1 class="greeting-name">{{ currentUser.name }}</h1>
             <span class="role-tag" [class.lead]="currentUser.role === 2">
-              {{ currentUser.role === 2 ? '⭐ Team Lead' : '👤 Team Member' }}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="currentUser.role === 2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="currentUser.role !== 2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4-4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              {{ currentUser.role === 2 ? 'Team Lead' : 'Team Member' }}
             </span>
           </div>
         </div>
@@ -39,6 +41,34 @@ import { ToastService } from '../core/services/toast.service';
 
       <!-- ===== LEAD VIEW ===== -->
       <ng-container *ngIf="isLead">
+        <!-- Active Week Info Card (Lead) — shown at TOP -->
+        <div class="active-week-section" *ngIf="activeWeek">
+          <h2>Current Active Week</h2>
+          <div class="active-week-card">
+            <div class="week-info">
+              <div class="week-dates">
+                <span class="date-label">Work Period</span>
+                <span class="date-range">{{ formatDate(activeWeek.startDate) }} &rarr; {{ formatDate(activeWeek.endDate) }}</span>
+              </div>
+              <div class="week-status">
+                <span class="status-badge" [class]="getStatusClass(activeWeek.status)">
+                  {{ getStatusLabel(activeWeek.status) }}
+                </span>
+                <span class="frozen-badge" *ngIf="activeWeek.isFrozen"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Frozen</span>
+              </div>
+              <div class="week-split">
+                <span class="split-chip client">Client {{ activeWeek.clientPercent }}%</span>
+                <span class="split-chip tech">Tech {{ activeWeek.techDebtPercent }}%</span>
+                <span class="split-chip rnd">R&amp;D {{ activeWeek.rndPercent }}%</span>
+              </div>
+            </div>
+            <div class="week-actions">
+              <button class="btn-outline" (click)="navigateTo('/planning/' + activeWeek.id)">View Details</button>
+              <button class="btn-primary" (click)="navigateTo('/planning/' + activeWeek.id + '/review')">Review &amp; Freeze</button>
+            </div>
+          </div>
+        </div>
+
         <div class="section-header">
           <h2 class="section-title">Quick Actions</h2>
           <p class="section-sub" *ngIf="!activeWeek">Start a new week to begin planning</p>
@@ -48,7 +78,7 @@ import { ToastService } from '../core/services/toast.service';
         <!-- Lead WITHOUT active week: 4 cards -->
         <div class="actions-grid" *ngIf="!activeWeek">
           <button class="action-card start-card" (click)="navigateTo('/planning/create')">
-            <div class="action-icon-wrap rocket">🚀</div>
+            <div class="action-icon-wrap rocket"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
             <div class="action-text">
               <strong>Start a New Week</strong>
               <p>Set up a new planning cycle for your team.</p>
@@ -57,7 +87,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/backlog')">
-            <div class="action-icon-wrap green">📋</div>
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             <div class="action-text">
               <strong>Manage Backlog</strong>
               <p>Add, edit, or browse work items.</p>
@@ -66,7 +96,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/team')">
-            <div class="action-icon-wrap purple">👥</div>
+            <div class="action-icon-wrap purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
             <div class="action-text">
               <strong>Manage Team Members</strong>
               <p>Add or remove team members.</p>
@@ -75,7 +105,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/weeks')">
-            <div class="action-icon-wrap gray">📅</div>
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="action-text">
               <strong>View Past Weeks</strong>
               <p>Look at completed planning cycles.</p>
@@ -87,16 +117,16 @@ import { ToastService } from '../core/services/toast.service';
         <!-- Lead WITH active week: 6 cards -->
         <div class="actions-grid" *ngIf="activeWeek">
           <button class="action-card ice" (click)="goToFreeze()">
-            <div class="action-icon-wrap frost">❄️</div>
+            <div class="action-icon-wrap frost"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
             <div class="action-text">
-              <strong>Review and Freeze the Plan</strong>
+              <strong>Review & Freeze</strong>
               <p>Check everyone's hours and lock the plan.</p>
             </div>
             <span class="action-arrow">→</span>
           </button>
 
           <button class="action-card" (click)="goToPlanMyWork()">
-            <div class="action-icon-wrap blue">📝</div>
+            <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
             <div class="action-text">
               <strong>Plan My Work</strong>
               <p>Pick backlog items and commit hours.</p>
@@ -105,7 +135,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/backlog')">
-            <div class="action-icon-wrap green">📋</div>
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             <div class="action-text">
               <strong>Manage Backlog</strong>
               <p>Add, edit, or browse work items.</p>
@@ -114,7 +144,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/team')">
-            <div class="action-icon-wrap purple">👥</div>
+            <div class="action-icon-wrap purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
             <div class="action-text">
               <strong>Manage Team Members</strong>
               <p>Add or remove team members.</p>
@@ -123,7 +153,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/weeks')">
-            <div class="action-icon-wrap gray">📅</div>
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="action-text">
               <strong>View Past Weeks</strong>
               <p>Look at completed planning cycles.</p>
@@ -132,7 +162,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card danger-card" (click)="cancelWeekPlanning()">
-            <div class="action-icon-wrap red">🗑️</div>
+            <div class="action-icon-wrap red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
             <div class="action-text">
               <strong>Cancel This Week's Planning</strong>
               <p>Erase all plans and start over.</p>
@@ -141,33 +171,6 @@ import { ToastService } from '../core/services/toast.service';
           </button>
         </div>
 
-        <!-- Active Week Info Card (Lead) -->
-        <div class="active-week-section" *ngIf="activeWeek">
-          <h2>Current Active Week</h2>
-          <div class="active-week-card">
-            <div class="week-info">
-              <div class="week-dates">
-                <span class="date-label">Work Period</span>
-                <span class="date-range">{{ formatDate(activeWeek.startDate) }} → {{ formatDate(activeWeek.endDate) }}</span>
-              </div>
-              <div class="week-status">
-                <span class="status-badge" [class]="getStatusClass(activeWeek.status)">
-                  {{ getStatusLabel(activeWeek.status) }}
-                </span>
-                <span class="frozen-badge" *ngIf="activeWeek.isFrozen">🔒 Frozen</span>
-              </div>
-              <div class="week-split">
-                <span class="split-chip client">Client {{ activeWeek.clientPercent }}%</span>
-                <span class="split-chip tech">Tech {{ activeWeek.techDebtPercent }}%</span>
-                <span class="split-chip rnd">R&D {{ activeWeek.rndPercent }}%</span>
-              </div>
-            </div>
-            <div class="week-actions">
-              <button class="btn-outline" (click)="navigateTo('/planning/' + activeWeek.id)">View Details</button>
-              <button class="btn-primary" (click)="navigateTo('/planning/' + activeWeek.id + '/dashboard')">Lead Dashboard</button>
-            </div>
-          </div>
-        </div>
       </ng-container>
 
       <!-- ===== MEMBER VIEW ===== -->
@@ -181,7 +184,7 @@ import { ToastService } from '../core/services/toast.service';
         <!-- Member WITHOUT active week: 2 cards -->
         <div class="actions-grid member-grid" *ngIf="!activeWeek">
           <button class="action-card" (click)="navigateTo('/backlog')">
-            <div class="action-icon-wrap green">📋</div>
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             <div class="action-text">
               <strong>Manage Backlog</strong>
               <p>Add, edit, or browse work items.</p>
@@ -190,7 +193,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/weeks')">
-            <div class="action-icon-wrap gray">📅</div>
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="action-text">
               <strong>View Past Weeks</strong>
               <p>Look at completed planning cycles.</p>
@@ -202,7 +205,7 @@ import { ToastService } from '../core/services/toast.service';
         <!-- Member WITH active week: 3 cards -->
         <div class="actions-grid member-grid" *ngIf="activeWeek">
           <button class="action-card primary" (click)="goToPlanMyWork()">
-            <div class="action-icon-wrap blue">📝</div>
+            <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
             <div class="action-text">
               <strong>Plan My Work</strong>
               <p>Pick backlog items and commit your 30 hours.</p>
@@ -211,7 +214,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/backlog')">
-            <div class="action-icon-wrap green">📋</div>
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
             <div class="action-text">
               <strong>Manage Backlog</strong>
               <p>Add, edit, or browse work items.</p>
@@ -220,7 +223,7 @@ import { ToastService } from '../core/services/toast.service';
           </button>
 
           <button class="action-card" (click)="navigateTo('/weeks')">
-            <div class="action-icon-wrap gray">📅</div>
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="action-text">
               <strong>View Past Weeks</strong>
               <p>Look at completed planning cycles.</p>
@@ -288,7 +291,7 @@ import { ToastService } from '../core/services/toast.service';
       background: var(--bg-tertiary, #21262d); color: var(--text-secondary, #8b949e);
       display: inline-flex; align-items: center; gap: 4px; width: fit-content;
     }
-    .role-tag.lead { background: rgba(31,111,235,0.15); color: #58a6ff; }
+    .role-tag.lead { background: rgba(31,111,235,0.15); color: var(--accent); }
 
     /* Section Header */
     .section-header { margin-bottom: 20px; }
@@ -317,11 +320,11 @@ import { ToastService } from '../core/services/toast.service';
     }
     .action-card.start-card { border: 2px solid rgba(31,111,235,0.4); }
     .action-card.start-card::before { background: linear-gradient(90deg, #1f6feb, #388bfd); height: 3px; }
-    .action-card.start-card:hover { border-color: #1f6feb; box-shadow: 0 8px 24px rgba(31,111,235,0.2); }
-    .action-card.primary { border-left: 3px solid #1f6feb; }
+    .action-card.start-card:hover { border-color: var(--accent); box-shadow: 0 8px 24px rgba(31,111,235,0.2); }
+    .action-card.primary { border-left: 3px solid var(--accent); }
     .action-card.ice { border-left: 3px solid #7dd3fc; }
-    .action-card.danger-card { border-left: 3px solid #f85149; }
-    .action-card.danger-card:hover { border-color: #f85149; box-shadow: 0 8px 24px rgba(248,81,73,0.15); }
+    .action-card.danger-card { border-left: 3px solid var(--danger); }
+    .action-card.danger-card:hover { border-color: var(--danger); box-shadow: 0 8px 24px rgba(248,81,73,0.15); }
 
     .action-icon-wrap {
       width: 48px; height: 48px; border-radius: 14px;
@@ -355,22 +358,22 @@ import { ToastService } from '../core/services/toast.service';
     .week-status { display: flex; gap: 8px; }
     .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
     .status-badge.setup { background: rgba(210,153,34,0.15); color: #d29922; }
-    .status-badge.inprogress { background: rgba(31,111,235,0.15); color: #58a6ff; }
-    .status-badge.completed { background: rgba(35,134,54,0.15); color: #3fb950; }
-    .status-badge.archived { background: rgba(72,79,88,0.15); color: #8b949e; }
+    .status-badge.inprogress { background: rgba(31,111,235,0.15); color: var(--accent); }
+    .status-badge.completed { background: rgba(35,134,54,0.15); color: var(--success); }
+    .status-badge.archived { background: rgba(72,79,88,0.15); color: var(--text-secondary); }
     .frozen-badge { font-size: 12px; color: #f0c060; padding: 4px 10px; background: rgba(240,192,96,0.1); border-radius: 20px; }
     .week-split { display: flex; gap: 6px; }
     .split-chip { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
-    .split-chip.client { background: rgba(31,111,235,0.1); color: #58a6ff; }
-    .split-chip.tech { background: rgba(218,54,51,0.1); color: #f85149; }
-    .split-chip.rnd { background: rgba(35,134,54,0.1); color: #3fb950; }
+    .split-chip.client { background: rgba(31,111,235,0.1); color: var(--accent); }
+    .split-chip.tech { background: rgba(218,54,51,0.1); color: var(--danger); }
+    .split-chip.rnd { background: rgba(35,134,54,0.1); color: var(--success); }
     .week-actions { display: flex; flex-direction: column; gap: 8px; }
     .btn-outline {
       background: none; border: 1px solid var(--border, #30363d); color: var(--text-primary, #e1e4e8);
       padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;
       transition: all 0.2s;
     }
-    .btn-outline:hover { border-color: #58a6ff; color: var(--text-heading, #f0f6fc); }
+    .btn-outline:hover { border-color: var(--border-hover); color: var(--text-heading); }
     .btn-primary {
       background: linear-gradient(135deg, #1f6feb, #388bfd); border: none; color: #fff; padding: 8px 16px;
       border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
@@ -385,7 +388,7 @@ import { ToastService } from '../core/services/toast.service';
       border-radius: 14px; padding: 24px; margin-bottom: 20px;
     }
     .active-plan-card h2 { color: var(--text-heading, #f0f6fc); font-size: 18px; margin: 0 0 16px; font-weight: 700; }
-    .plan-dates { color: #58a6ff; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+    .plan-dates { color: var(--accent); font-size: 14px; font-weight: 600; margin-bottom: 16px; }
     .plan-stats { display: flex; gap: 24px; }
     .plan-stat { display: flex; flex-direction: column; align-items: center; }
     .stat-val { font-size: 24px; font-weight: 700; color: var(--text-heading, #f0f6fc); }
@@ -458,7 +461,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   goToFreeze(): void {
     if (this.activeWeek) {
-      this.router.navigate(['/planning', this.activeWeek.id, 'dashboard']);
+      this.router.navigate(['/planning', this.activeWeek.id, 'review']);
     } else {
       this.toast.info('No active week to review. Start a new week first.');
     }

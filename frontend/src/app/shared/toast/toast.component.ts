@@ -31,9 +31,9 @@ import { ToastService, Toast } from '../../core/services/toast.service';
       cursor: pointer; color: white; font-size: 14px;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    .toast-success { background: #238636; }
-    .toast-error { background: #da3633; }
-    .toast-info { background: #1f6feb; }
+    .toast-success { background: var(--success); }
+    .toast-error { background: var(--danger); }
+    .toast-info { background: var(--accent); }
     .toast-warning { background: #d29922; }
     .toast-icon { font-size: 18px; min-width: 20px; }
     .toast-message { flex: 1; }

@@ -22,6 +22,7 @@ body.dark-theme {
   --success: #238636;
   --success-hover: #2ea043;
   --shadow: rgba(0,0,0,0.3);
+  --navbar-bg: #1e2228;
 }
 
 /* ── Light Theme ── */
@@ -45,6 +46,7 @@ body.light-theme {
   --success: #1a7f37;
   --success-hover: #116329;
   --shadow: rgba(31,35,40,0.12);
+  --navbar-bg: #e8ecf0;
 }
 
 * {

@@ -1,6 +1,11 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { TeamState } from './team.reducer';
 
+/**
+ * Team Selectors
+ * Derived state projections for accessing team members, lead, loading, and error state
+ */
+
 export const selectTeamState = createFeatureSelector<TeamState>('team');
 
 export const selectAllTeamMembers = createSelector(selectTeamState, (state) => state.members);

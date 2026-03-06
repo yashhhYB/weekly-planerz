@@ -77,82 +77,82 @@ import { UserContextService } from '../../../../core/services/user-context.servi
   styles: [`
     .page { padding: 32px 0; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .page-header h1 { margin: 0 0 4px 0; font-size: 28px; color: #f0f6fc; }
-    .page-desc { margin: 0; color: #8b949e; font-size: 14px; }
+    .page-header h1 { margin: 0 0 4px 0; font-size: 28px; color: var(--text-heading); }
+    .page-desc { margin: 0; color: var(--text-secondary); font-size: 14px; }
 
     .btn-create {
       display: flex; align-items: center; gap: 6px;
-      padding: 10px 20px; background: #238636; color: white;
+      padding: 10px 20px; background: var(--success); color: white;
       border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    .btn-create:hover { background: #2ea043; }
+    .btn-create:hover { filter: brightness(1.15); }
     .btn-create span { font-size: 18px; }
 
     .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
     .filters { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .filter-btn {
-      padding: 6px 14px; background: #21262d; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 20px; cursor: pointer; font-size: 13px;
+      padding: 6px 14px; background: var(--bg-tertiary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 13px;
       transition: all 0.2s;
     }
-    .filter-btn:hover { border-color: #58a6ff; }
-    .filter-btn.active { background: #1f6feb; color: white; border-color: #1f6feb; }
-    .archive-filter.active { background: #484f58; border-color: #484f58; }
+    .filter-btn:hover { border-color: var(--border-hover); }
+    .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .archive-filter.active { background: var(--text-muted); border-color: var(--text-muted); }
 
     .search-box input {
-      padding: 8px 14px; background: #0d1117; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px; font-size: 13px; width: 220px;
+      padding: 8px 14px; background: var(--bg-input); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px; font-size: 13px; width: 220px;
       transition: border-color 0.2s;
     }
-    .search-box input:focus { outline: none; border-color: #58a6ff; }
-    .search-box input::placeholder { color: #484f58; }
+    .search-box input:focus { outline: none; border-color: var(--border-hover); }
+    .search-box input::placeholder { color: var(--text-muted); }
 
-    .loading { text-align: center; padding: 60px; color: #8b949e; }
+    .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
 
-    .empty { text-align: center; padding: 80px 20px; color: #8b949e; }
+    .empty { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
     .empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty p { margin: 0 0 4px 0; font-size: 18px; color: #e1e4e8; }
-    .empty small { color: #8b949e; }
+    .empty p { margin: 0 0 4px 0; font-size: 18px; color: var(--text-primary); }
+    .empty small { color: var(--text-secondary); }
 
     .table-wrap {
       overflow-x: auto; border-radius: 8px;
-      border: 1px solid #30363d;
+      border: 1px solid var(--border);
     }
 
-    table { width: 100%; border-collapse: collapse; background: #161b22; }
-    thead { background: #21262d; }
-    th { padding: 12px 16px; text-align: left; font-weight: 600; color: #8b949e; font-size: 13px; border-bottom: 1px solid #30363d; }
-    td { padding: 12px 16px; border-bottom: 1px solid #21262d; color: #e1e4e8; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
+    thead { background: var(--bg-tertiary); }
+    th { padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text-secondary); font-size: 13px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--bg-tertiary); color: var(--text-primary); font-size: 14px; }
 
-    .title-cell { color: #58a6ff; cursor: pointer; font-weight: 500; }
+    .title-cell { color: var(--accent); cursor: pointer; font-weight: 500; }
     .title-cell:hover { text-decoration: underline; }
 
     tr.archived { opacity: 0.5; }
 
     .cat-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .c-1 { background: rgba(31,111,235,0.15); color: #58a6ff; }
-    .c-2 { background: rgba(218,54,51,0.15); color: #f85149; }
-    .c-3 { background: rgba(35,134,54,0.15); color: #3fb950; }
+    .c-1 { background: rgba(31,111,235,0.15); color: var(--accent); }
+    .c-2 { background: rgba(218,54,51,0.15); color: var(--danger); }
+    .c-3 { background: rgba(35,134,54,0.15); color: var(--success); }
 
     .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .status-badge.active { background: rgba(35,134,54,0.2); color: #3fb950; }
-    .status-badge.archived { background: rgba(139,148,158,0.2); color: #8b949e; }
+    .status-badge.active { background: rgba(35,134,54,0.2); color: var(--success); }
+    .status-badge.archived { background: rgba(139,148,158,0.2); color: var(--text-secondary); }
 
     .actions { display: flex; gap: 6px; }
 
     .btn-sm {
-      padding: 4px 10px; font-size: 12px; background: #21262d; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px; cursor: pointer;
+      padding: 4px 10px; font-size: 12px; background: var(--bg-tertiary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
       transition: all 0.2s;
     }
-    .btn-sm:hover:not(:disabled) { background: #30363d; border-color: #58a6ff; }
+    .btn-sm:hover:not(:disabled) { background: var(--border); border-color: var(--border-hover); }
     .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-sm.danger { background: rgba(248,81,73,0.1); color: #f85149; border-color: rgba(248,81,73,0.3); }
+    .btn-sm.danger { background: rgba(248,81,73,0.1); color: var(--danger); border-color: rgba(248,81,73,0.3); }
     .btn-sm.danger:hover { background: rgba(248,81,73,0.2); }
 
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
   `]
 })
 export class BacklogListComponent implements OnInit {

@@ -35,5 +35,10 @@ export const PLANNING_ROUTES: Routes = [
     path: ':id/dashboard',
     loadComponent: () => import('./pages/lead-dashboard/lead-dashboard.component').then(m => m.LeadDashboardComponent),
     data: { title: 'Lead Dashboard' }
+  },
+  {
+    path: ':id/review',
+    loadComponent: () => import('./pages/review-freeze/review-freeze.component').then(m => m.ReviewFreezeComponent),
+    data: { title: 'Review & Freeze' }
   }
 ];

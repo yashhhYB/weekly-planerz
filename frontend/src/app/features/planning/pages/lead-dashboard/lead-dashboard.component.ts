@@ -14,13 +14,24 @@ import { ToastService } from '../../../../core/services/toast.service';
   template: `
     <div class="page-container">
       <div class="page-header">
-        <div>
-          <h1>📊 Lead Dashboard</h1>
-          <p class="subtitle" *ngIf="dashboard">{{ dashboard.weekLabel }}</p>
+        <div class="header-left">
+          <svg class="header-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <div>
+            <h1>Lead Dashboard</h1>
+            <p class="subtitle" *ngIf="dashboard">{{ dashboard.weekLabel }}</p>
+          </div>
         </div>
         <div class="header-actions">
-          <a [routerLink]="['/planning', weekId]" class="btn-back">← Back to Week</a>
-          <a routerLink="/home" class="btn-back">🏠 Home</a>
+          <a [routerLink]="['/planning', weekId]" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Week
+          </a>
+          <a routerLink="/home" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </a>
         </div>
       </div>
 
@@ -33,17 +44,23 @@ import { ToastService } from '../../../../core/services/toast.service';
             <span class="status-badge" [ngClass]="'st-' + dashboard.status">
               {{ getStatusLabel(dashboard.status) }}
             </span>
-            <span class="frozen-badge" *ngIf="dashboard.isFrozen">🔒 Frozen</span>
+            <span class="frozen-badge" *ngIf="dashboard.isFrozen">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Frozen
+            </span>
           </div>
           <div class="status-actions">
-            <button class="btn-action freeze" *ngIf="!dashboard.isFrozen && dashboard.status <= 1" (click)="freezeWeek()">
-              🔒 Freeze Week
+            <button class="btn-action freeze" *ngIf="!dashboard.isFrozen && dashboard.status <= 1" (click)="goToReview()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Review & Freeze
             </button>
             <button class="btn-action start" *ngIf="dashboard.status === 0" (click)="startWeek()">
-              ▶ Start Week
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Start Week
             </button>
             <button class="btn-action complete" *ngIf="dashboard.status === 1" (click)="completeWeek()">
-              ✅ Complete Week
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Complete Week
             </button>
           </div>
         </div>
@@ -51,21 +68,21 @@ import { ToastService } from '../../../../core/services/toast.service';
         <!-- Metrics Row -->
         <div class="metrics-row">
           <div class="metric-card">
-            <div class="metric-value blue">{{ dashboard.totalPlannedHours.toFixed(1) }}h</div>
+            <div class="metric-value blue">{{ (dashboard.totalPlannedHours || 0).toFixed(1) }}h</div>
             <div class="metric-label">Total Planned</div>
           </div>
           <div class="metric-card">
-            <div class="metric-value green">{{ dashboard.totalActualHours.toFixed(1) }}h</div>
+            <div class="metric-value green">{{ (dashboard.totalActualHours || 0).toFixed(1) }}h</div>
             <div class="metric-label">Total Actual</div>
           </div>
           <div class="metric-card">
-            <div class="metric-value" [class.green]="dashboard.completionPercent >= 80" [class.yellow]="dashboard.completionPercent >= 50 && dashboard.completionPercent < 80" [class.red]="dashboard.completionPercent < 50">
-              {{ dashboard.completionPercent.toFixed(0) }}%
+            <div class="metric-value" [class.green]="getCompletionPercent() >= 80" [class.yellow]="getCompletionPercent() >= 50 && getCompletionPercent() < 80" [class.red]="getCompletionPercent() < 50">
+              {{ getCompletionPercent() }}%
             </div>
             <div class="metric-label">Completion</div>
           </div>
           <div class="metric-card">
-            <div class="metric-value blue">{{ dashboard.members.length }}</div>
+            <div class="metric-value blue">{{ (dashboard.members || []).length }}</div>
             <div class="metric-label">Team Members</div>
           </div>
         </div>
@@ -76,39 +93,39 @@ import { ToastService } from '../../../../core/services/toast.service';
           <div class="cat-grid">
             <div class="cat-card">
               <div class="cat-header">
-                <span class="cat-dot" style="background: #1f6feb;"></span>
+                <span class="cat-dot client"></span>
                 <span class="cat-title">Client Focused</span>
                 <span class="cat-pct">{{ dashboard.clientFocused.allocatedPercent }}%</span>
               </div>
               <div class="cat-hours">
-                <span>Planned: {{ dashboard.clientFocused.plannedHours.toFixed(1) }}h</span>
-                <span>Actual: {{ dashboard.clientFocused.actualHours.toFixed(1) }}h</span>
+                <span>Planned: {{ (dashboard.clientFocused.plannedHours || 0).toFixed(1) }}h</span>
+                <span>Actual: {{ (dashboard.clientFocused.actualHours || 0).toFixed(1) }}h</span>
               </div>
-              <div class="cat-bar-track"><div class="cat-bar-fill" style="background: #1f6feb;" [style.width.%]="dashboard.clientFocused.allocatedPercent"></div></div>
+              <div class="cat-bar-track"><div class="cat-bar-fill client" [style.width.%]="dashboard.clientFocused.allocatedPercent"></div></div>
             </div>
             <div class="cat-card">
               <div class="cat-header">
-                <span class="cat-dot" style="background: #da3633;"></span>
+                <span class="cat-dot techdebt"></span>
                 <span class="cat-title">Tech Debt</span>
                 <span class="cat-pct">{{ dashboard.techDebt.allocatedPercent }}%</span>
               </div>
               <div class="cat-hours">
-                <span>Planned: {{ dashboard.techDebt.plannedHours.toFixed(1) }}h</span>
-                <span>Actual: {{ dashboard.techDebt.actualHours.toFixed(1) }}h</span>
+                <span>Planned: {{ (dashboard.techDebt.plannedHours || 0).toFixed(1) }}h</span>
+                <span>Actual: {{ (dashboard.techDebt.actualHours || 0).toFixed(1) }}h</span>
               </div>
-              <div class="cat-bar-track"><div class="cat-bar-fill" style="background: #da3633;" [style.width.%]="dashboard.techDebt.allocatedPercent"></div></div>
+              <div class="cat-bar-track"><div class="cat-bar-fill techdebt" [style.width.%]="dashboard.techDebt.allocatedPercent"></div></div>
             </div>
             <div class="cat-card">
               <div class="cat-header">
-                <span class="cat-dot" style="background: #238636;"></span>
+                <span class="cat-dot rnd"></span>
                 <span class="cat-title">R&D</span>
                 <span class="cat-pct">{{ dashboard.rnD.allocatedPercent }}%</span>
               </div>
               <div class="cat-hours">
-                <span>Planned: {{ dashboard.rnD.plannedHours.toFixed(1) }}h</span>
-                <span>Actual: {{ dashboard.rnD.actualHours.toFixed(1) }}h</span>
+                <span>Planned: {{ (dashboard.rnD.plannedHours || 0).toFixed(1) }}h</span>
+                <span>Actual: {{ (dashboard.rnD.actualHours || 0).toFixed(1) }}h</span>
               </div>
-              <div class="cat-bar-track"><div class="cat-bar-fill" style="background: #238636;" [style.width.%]="dashboard.rnD.allocatedPercent"></div></div>
+              <div class="cat-bar-track"><div class="cat-bar-fill rnd" [style.width.%]="dashboard.rnD.allocatedPercent"></div></div>
             </div>
           </div>
         </div>
@@ -123,20 +140,22 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <div class="member-info">
                   <span class="member-name">{{ m.name }}</span>
                   <span class="member-status" [class.submitted]="m.hasSubmitted">
-                    {{ m.hasSubmitted ? '✅ Submitted' : '⏳ Pending' }}
+                    <svg *ngIf="m.hasSubmitted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    <svg *ngIf="!m.hasSubmitted" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    {{ m.hasSubmitted ? 'Submitted' : 'Pending' }}
                   </span>
                 </div>
               </div>
               <div class="member-right">
                 <div class="member-hours">
-                  <span>{{ m.plannedHours.toFixed(1) }}h planned</span>
+                  <span>{{ (m.plannedHours || 0).toFixed(1) }}h planned</span>
                   <span class="sep">→</span>
-                  <span>{{ m.actualHours.toFixed(1) }}h actual</span>
+                  <span>{{ (m.actualHours || 0).toFixed(1) }}h actual</span>
                 </div>
                 <div class="progress-track">
-                  <div class="progress-fill" [style.width.%]="m.progressPercent" [class.high]="m.progressPercent >= 80"></div>
+                  <div class="progress-fill" [style.width.%]="m.progressPercent || 0" [class.high]="(m.progressPercent || 0) >= 80"></div>
                 </div>
-                <span class="progress-pct">{{ m.progressPercent.toFixed(0) }}%</span>
+                <span class="progress-pct">{{ (m.progressPercent || 0).toFixed(0) }}%</span>
                 <span class="view-link">View →</span>
               </div>
             </div>
@@ -162,8 +181,8 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <tr *ngFor="let t of dashboard.tasks">
                   <td class="task-name">{{ t.taskTitle }}</td>
                   <td>{{ t.memberName }}</td>
-                  <td>{{ t.plannedHours.toFixed(1) }}h</td>
-                  <td>{{ t.actualHours.toFixed(1) }}h</td>
+                  <td>{{ (t.plannedHours || 0).toFixed(1) }}h</td>
+                  <td>{{ (t.actualHours || 0).toFixed(1) }}h</td>
                   <td>
                     <div class="cell-progress">
                       <div class="mini-track"><div class="mini-fill" [style.width.%]="t.progressPercent"></div></div>
@@ -183,83 +202,91 @@ import { ToastService } from '../../../../core/services/toast.service';
   styles: [`
     .page-container { max-width: 1000px; margin: 0 auto; padding: 24px 0; }
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-    .page-header h1 { color: #f0f6fc; margin: 0 0 4px; font-size: 24px; }
-    .subtitle { color: #8b949e; margin: 0; font-size: 14px; }
+    .page-header h1 { color: var(--text-heading); margin: 0 0 4px; font-size: 24px; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-icon { color: var(--accent); }
+    .subtitle { color: var(--text-secondary); margin: 0; font-size: 14px; }
     .header-actions { display: flex; gap: 8px; }
-    .btn-back { color: #58a6ff; text-decoration: none; font-size: 14px; padding: 8px 16px; border: 1px solid #30363d; border-radius: 8px; }
-    .btn-back:hover { background: #161b22; }
-    .loading { text-align: center; padding: 60px; color: #8b949e; }
+    .btn-back { color: var(--text-secondary); text-decoration: none; font-size: 13px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; background: none; }
+    .btn-back:hover { background: var(--bg-card); color: var(--text-heading); border-color: var(--border-hover); }
+    .loading { text-align: center; padding: 60px; color: var(--text-secondary); }
 
     .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .metric-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; text-align: center; }
+    .metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; }
     .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
-    .metric-value.blue { color: #58a6ff; }
-    .metric-value.green { color: #3fb950; }
+    .metric-value.blue { color: var(--accent); }
+    .metric-value.green { color: var(--success); }
     .metric-value.yellow { color: #d29922; }
-    .metric-value.red { color: #f85149; }
-    .metric-label { font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-value.red { color: var(--danger); }
+    .metric-label { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .section { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
-    .section h2 { margin: 0 0 16px; font-size: 16px; color: #f0f6fc; padding-bottom: 10px; border-bottom: 1px solid #21262d; }
+    .section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    .section h2 { margin: 0 0 16px; font-size: 16px; color: var(--text-heading); padding-bottom: 10px; border-bottom: 1px solid var(--bg-tertiary); }
 
     .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .cat-card { background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 14px; }
+    .cat-card { background: var(--bg-input); border: 1px solid var(--bg-tertiary); border-radius: 8px; padding: 14px; }
     .cat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .cat-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .cat-title { color: #e1e4e8; font-weight: 500; font-size: 14px; flex: 1; }
-    .cat-pct { color: #8b949e; font-size: 14px; font-weight: 600; }
-    .cat-hours { display: flex; justify-content: space-between; font-size: 12px; color: #8b949e; margin-bottom: 8px; }
-    .cat-bar-track { height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+    .cat-dot.client { background: var(--accent); }
+    .cat-dot.techdebt { background: var(--danger); }
+    .cat-dot.rnd { background: var(--success); }
+    .cat-title { color: var(--text-primary); font-weight: 500; font-size: 14px; flex: 1; }
+    .cat-pct { color: var(--text-secondary); font-size: 14px; font-weight: 600; }
+    .cat-hours { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+    .cat-bar-track { height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
     .cat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .cat-bar-fill.client { background: var(--accent); }
+    .cat-bar-fill.techdebt { background: var(--danger); }
+    .cat-bar-fill.rnd { background: var(--success); }
 
     .member-list { display: flex; flex-direction: column; gap: 10px; }
-    .member-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #0d1117; border: 1px solid #21262d; border-radius: 8px; }
+    .member-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-input); border: 1px solid var(--bg-tertiary); border-radius: 8px; }
     .member-left { display: flex; align-items: center; gap: 12px; }
-    .avatar { width: 38px; height: 38px; border-radius: 50%; background: #30363d; display: flex; align-items: center; justify-content: center; color: #e1e4e8; font-weight: 700; font-size: 16px; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; color: var(--text-primary); font-weight: 700; font-size: 16px; }
     .member-info { display: flex; flex-direction: column; gap: 2px; }
-    .member-name { color: #f0f6fc; font-weight: 500; font-size: 14px; }
-    .member-status { font-size: 12px; color: #8b949e; }
-    .member-status.submitted { color: #3fb950; }
+    .member-name { color: var(--text-heading); font-weight: 500; font-size: 14px; }
+    .member-status { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+    .member-status.submitted { color: var(--success); }
     .member-right { display: flex; align-items: center; gap: 12px; }
-    .member-hours { font-size: 13px; color: #8b949e; display: flex; gap: 6px; }
-    .sep { color: #484f58; }
-    .progress-track { width: 100px; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #1f6feb; border-radius: 3px; transition: width 0.3s; }
-    .progress-fill.high { background: #238636; }
-    .progress-pct { font-size: 13px; color: #e1e4e8; font-weight: 600; min-width: 40px; text-align: right; }
+    .member-hours { font-size: 13px; color: var(--text-secondary); display: flex; gap: 6px; }
+    .sep { color: var(--text-muted); }
+    .progress-track { width: 100px; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+    .progress-fill.high { background: var(--success); }
+    .progress-pct { font-size: 13px; color: var(--text-primary); font-weight: 600; min-width: 40px; text-align: right; }
 
     .table-wrapper { overflow-x: auto; }
     .task-table { width: 100%; border-collapse: collapse; }
-    .task-table th { text-align: left; padding: 10px 12px; color: #8b949e; font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid #21262d; }
-    .task-table td { padding: 10px 12px; color: #e1e4e8; font-size: 14px; border-bottom: 1px solid #161b22; }
+    .task-table th { text-align: left; padding: 10px 12px; color: var(--text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 1px solid var(--bg-tertiary); }
+    .task-table td { padding: 10px 12px; color: var(--text-primary); font-size: 14px; border-bottom: 1px solid var(--bg-card); }
     .task-name { font-weight: 500; }
     .cell-progress { display: flex; align-items: center; gap: 8px; }
-    .mini-track { width: 60px; height: 5px; background: #21262d; border-radius: 3px; overflow: hidden; }
-    .mini-fill { height: 100%; background: #1f6feb; border-radius: 3px; }
+    .mini-track { width: 60px; height: 5px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+    .mini-fill { height: 100%; background: var(--accent); border-radius: 3px; }
 
-    .empty { text-align: center; padding: 24px; color: #8b949e; }
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .empty { text-align: center; padding: 24px; color: var(--text-secondary); }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
 
-    .status-bar { display: flex; justify-content: space-between; align-items: center; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; }
+    .status-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; }
     .status-info { display: flex; align-items: center; gap: 10px; }
     .status-badge { padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
     .st-0 { background: rgba(210,153,34,0.15); color: #d29922; }
-    .st-1 { background: rgba(31,111,235,0.15); color: #58a6ff; }
-    .st-2 { background: rgba(35,134,54,0.15); color: #3fb950; }
-    .st-3 { background: rgba(72,79,88,0.15); color: #8b949e; }
-    .frozen-badge { font-size: 12px; color: #f0c060; padding: 4px 10px; background: rgba(240,192,96,0.1); border-radius: 20px; }
+    .st-1 { background: rgba(31,111,235,0.15); color: var(--accent); }
+    .st-2 { background: rgba(35,134,54,0.15); color: var(--success); }
+    .st-3 { background: rgba(72,79,88,0.15); color: var(--text-secondary); }
+    .frozen-badge { font-size: 12px; color: #f0c060; padding: 4px 10px; background: rgba(240,192,96,0.1); border-radius: 20px; display: flex; align-items: center; gap: 4px; }
     .status-actions { display: flex; gap: 8px; }
-    .btn-action { padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-action { padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
     .btn-action.freeze { background: rgba(240,192,96,0.15); color: #f0c060; border: 1px solid rgba(240,192,96,0.3); }
     .btn-action.freeze:hover { background: rgba(240,192,96,0.25); }
-    .btn-action.start { background: rgba(31,111,235,0.15); color: #58a6ff; border: 1px solid rgba(31,111,235,0.3); }
+    .btn-action.start { background: rgba(31,111,235,0.15); color: var(--accent); border: 1px solid rgba(31,111,235,0.3); }
     .btn-action.start:hover { background: rgba(31,111,235,0.25); }
-    .btn-action.complete { background: rgba(35,134,54,0.15); color: #3fb950; border: 1px solid rgba(35,134,54,0.3); }
+    .btn-action.complete { background: rgba(35,134,54,0.15); color: var(--success); border: 1px solid rgba(35,134,54,0.3); }
     .btn-action.complete:hover { background: rgba(35,134,54,0.25); }
 
     .member-row.clickable { cursor: pointer; transition: border-color 0.2s; }
-    .member-row.clickable:hover { border-color: #58a6ff; }
-    .view-link { color: #58a6ff; font-size: 13px; font-weight: 500; margin-left: 8px; }
+    .member-row.clickable:hover { border-color: var(--border-hover); }
+    .view-link { color: var(--accent); font-size: 13px; font-weight: 500; margin-left: 8px; }
 
     @media (max-width: 768px) {
       .metrics-row { grid-template-columns: repeat(2, 1fr); }
@@ -319,10 +346,23 @@ export class LeadDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  getCompletionPercent(): number {
+    if (!this.dashboard) return 0;
+    // If week is completed, show 100% even if no tasks
+    if (this.dashboard.status === 2) {
+      return this.dashboard.completionPercent || 100;
+    }
+    return this.dashboard.completionPercent || 0;
+  }
+
   openMemberBoard(m: any) {
     if (m.weekMemberId) {
       this.router.navigate(['/planning', this.weekId, 'board', m.weekMemberId]);
     }
+  }
+
+  goToReview() {
+    this.router.navigate(['/planning', this.weekId, 'review']);
   }
 
   freezeWeek() {

@@ -3,22 +3,22 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Domain", "src\WeeklyPlanner.Domain\WeeklyPlanner.Domain.csproj", "{12345678-1234-1234-1234-123456789001}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Domain", "WeeklyPlanner.Domain\WeeklyPlanner.Domain.csproj", "{12345678-1234-1234-1234-123456789001}"
 EndProject
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Application", "src\WeeklyPlanner.Application\WeeklyPlanner.Application.csproj", "{12345678-1234-1234-1234-123456789002}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Application", "WeeklyPlanner.Application\WeeklyPlanner.Application.csproj", "{12345678-1234-1234-1234-123456789002}"
 EndProject
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Infrastructure", "src\WeeklyPlanner.Infrastructure\WeeklyPlanner.Infrastructure.csproj", "{12345678-1234-1234-1234-123456789003}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Infrastructure", "WeeklyPlanner.Infrastructure\WeeklyPlanner.Infrastructure.csproj", "{12345678-1234-1234-1234-123456789003}"
 EndProject
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.API", "src\WeeklyPlanner.API\WeeklyPlanner.API.csproj", "{12345678-1234-1234-1234-123456789004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.API", "WeeklyPlanner.API\WeeklyPlanner.API.csproj", "{12345678-1234-1234-1234-123456789004}"
 EndProject
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.UnitTests", "tests\WeeklyPlanner.UnitTests\WeeklyPlanner.UnitTests.csproj", "{12345678-1234-1234-1234-123456789005}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.Tests", "WeeklyPlanner.Tests\WeeklyPlanner.UnitTests.csproj", "{12345678-1234-1234-1234-123456789005}"
 EndProject
 
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.IntegrationTests", "tests\WeeklyPlanner.IntegrationTests\WeeklyPlanner.IntegrationTests.csproj", "{12345678-1234-1234-1234-123456789006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeeklyPlanner.IntegrationTests", "WeeklyPlanner.IntegrationTests\WeeklyPlanner.IntegrationTests.csproj", "{12345678-1234-1234-1234-123456789006}"
 EndProject
 
 Global

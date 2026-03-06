@@ -5,10 +5,11 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { CreateBacklogItemRequest, UpdateBacklogItemRequest, BacklogCategory, BacklogCategoryLabels } from '../../../../models';
+import { CreateBacklogItemRequest, UpdateBacklogItemRequest, BacklogCategory, BacklogCategoryLabels, UserRole } from '../../../../models';
 import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-backlog-form',
@@ -32,10 +33,11 @@ import * as BacklogActions from '../../../../store/backlog/backlog.actions';
         <div class="form-row">
           <div class="field">
             <label for="category">Category *</label>
-            <select id="category" formControlName="category" required>
+            <select id="category" formControlName="category" required [attr.disabled]="!isLead ? '' : null">
               <option [ngValue]="0" disabled>Select Category</option>
               <option *ngFor="let cat of categoryOptions" [ngValue]="cat.value">{{ cat.label }}</option>
             </select>
+            <small *ngIf="!isLead" class="hint">Only the Team Lead can change category</small>
           </div>
           <div class="field">
             <label for="estimatedHours">Estimated Hours *</label>
@@ -54,44 +56,46 @@ import * as BacklogActions from '../../../../store/backlog/backlog.actions';
   `,
   styles: [`
     .page { padding: 32px 0; max-width: 600px; margin: 0 auto; }
-    .page h1 { margin: 0 0 24px 0; font-size: 28px; color: #f0f6fc; }
+    .page h1 { margin: 0 0 24px 0; font-size: 28px; color: var(--text-heading); }
 
-    .form-card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 24px; }
+    .form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; }
 
     .field { margin-bottom: 18px; }
-    label { display: block; margin-bottom: 6px; font-weight: 500; color: #e1e4e8; font-size: 14px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-primary); font-size: 14px; }
 
     input, textarea, select {
       width: 100%; padding: 10px 12px;
-      background: #0d1117; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px;
+      background: var(--bg-input); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px;
       font-size: 14px; font-family: inherit; box-sizing: border-box;
       transition: border-color 0.2s;
     }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: #58a6ff; box-shadow: 0 0 0 3px rgba(31,111,235,0.15); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-hover); box-shadow: 0 0 0 3px rgba(31,111,235,0.15); }
     textarea { resize: vertical; min-height: 80px; }
     select { cursor: pointer; }
-    select option { background: #161b22; color: #e1e4e8; }
+    select[disabled] { opacity: 0.6; cursor: not-allowed; }
+    select option { background: var(--bg-card); color: var(--text-primary); }
+    .hint { display: block; margin-top: 4px; color: var(--text-muted); font-size: 12px; }
 
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-actions { display: flex; gap: 10px; margin-top: 24px; }
 
     .btn-save {
-      flex: 1; padding: 10px 20px; background: #238636; color: white;
+      flex: 1; padding: 10px 20px; background: var(--success); color: white;
       border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
-    .btn-save:hover:not(:disabled) { background: #2ea043; }
+    .btn-save:hover:not(:disabled) { filter: brightness(1.15); }
     .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .btn-cancel {
-      flex: 1; padding: 10px 20px; background: #21262d; color: #e1e4e8;
-      border: 1px solid #30363d; border-radius: 6px; cursor: pointer; font-size: 14px;
+      flex: 1; padding: 10px 20px; background: var(--bg-tertiary); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 14px;
       transition: all 0.2s;
     }
-    .btn-cancel:hover { background: #30363d; border-color: #58a6ff; }
+    .btn-cancel:hover { background: var(--border); border-color: var(--border-hover); }
 
-    .error-bar { background: rgba(248,81,73,0.1); color: #f85149; padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
+    .error-bar { background: rgba(248,81,73,0.1); color: var(--danger); padding: 12px 16px; border-radius: 6px; margin-top: 16px; border: 1px solid rgba(248,81,73,0.4); }
 
     @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
   `]
@@ -100,6 +104,7 @@ export class BacklogFormComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   isEdit = false;
   submitting = false;
+  isLead = false;
   error$: Observable<string | null>;
   private backlogId: string | null = null;
   private destroy$ = new Subject<void>();
@@ -114,13 +119,17 @@ export class BacklogFormComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private store: Store<AppStoreState>,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private userContext: UserContextService
   ) {
     this.initializeForm();
     this.error$ = this.store.select(BacklogSelectors.selectBacklogError);
   }
 
   ngOnInit(): void {
+    this.userContext.currentUser$.pipe(takeUntil(this.destroy$)).subscribe(user => {
+      this.isLead = user?.role === UserRole.TeamLead;
+    });
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['id']) {
         this.isEdit = true;

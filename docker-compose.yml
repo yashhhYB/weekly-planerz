@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
+  # ── PostgreSQL Database ──────────────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: weekly-planner-db
@@ -21,22 +21,35 @@ services:
     networks:
       - weekly-planner-network
 
-  # ASP.NET Core Backend (optional - run locally during dev)
-  # Uncomment to use Docker for backend too
-  # api:
-  #   build:
-  #     context: ./backend
-  #   container_name: weekly-planner-api
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #     ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weeklyplanner_dev;Username=planner;Password=WeeklyPlanner@123"
-  #   ports:
-  #     - "5000:80"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   networks:
-  #     - weekly-planner-network
+  # ── ASP.NET Core Backend ─────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: weekly-planner-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=weeklyplanner_dev;Username=planner;Password=WeeklyPlanner@123"
+    ports:
+      - "5000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - weekly-planner-network
+
+  # ── Angular Frontend ─────────────────────────────────────────
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weekly-planner-web
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    networks:
+      - weekly-planner-network
 
 volumes:
   postgres_data:

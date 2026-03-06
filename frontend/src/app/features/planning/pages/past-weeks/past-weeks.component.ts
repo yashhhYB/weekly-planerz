@@ -52,38 +52,38 @@ import * as PlanningActions from '../../../../store/planning/planning.actions';
   styles: [`
     .page-container { max-width: 900px; margin: 0 auto; padding: 24px 0; }
     .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-    .page-header h1 { color: #f0f6fc; margin: 0 0 4px; font-size: 24px; }
-    .subtitle { color: #8b949e; margin: 0; font-size: 14px; }
-    .btn-back { color: #58a6ff; text-decoration: none; font-size: 14px; padding: 8px 16px; border: 1px solid #30363d; border-radius: 8px; }
-    .btn-back:hover { background: #161b22; }
+    .page-header h1 { color: var(--text-heading); margin: 0 0 4px; font-size: 24px; }
+    .subtitle { color: var(--text-secondary); margin: 0; font-size: 14px; }
+    .btn-back { color: var(--accent); text-decoration: none; font-size: 14px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; }
+    .btn-back:hover { background: var(--bg-card); }
 
     .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
-    .filter-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-    .filter-btn:hover { color: #e1e4e8; border-color: #484f58; }
-    .filter-btn.active { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+    .filter-btn { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .filter-btn:hover { color: var(--text-primary); border-color: var(--text-muted); }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
     .weeks-list { display: flex; flex-direction: column; gap: 10px; }
-    .week-card { display: block; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; text-decoration: none; transition: all 0.2s; }
-    .week-card:hover { border-color: #58a6ff; background: #1c2129; }
+    .week-card { display: block; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-decoration: none; transition: all 0.2s; }
+    .week-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
 
     .week-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .status-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
     .s-1 { background: rgba(210,153,34,0.2); color: #d29922; }
-    .s-2 { background: rgba(31,111,235,0.2); color: #58a6ff; }
-    .s-3 { background: rgba(35,134,54,0.2); color: #3fb950; }
-    .s-4 { background: rgba(139,148,158,0.2); color: #8b949e; }
+    .s-2 { background: rgba(31,111,235,0.2); color: var(--accent); }
+    .s-3 { background: rgba(35,134,54,0.2); color: var(--success); }
+    .s-4 { background: rgba(139,148,158,0.2); color: var(--text-secondary); }
     .frozen { font-size: 14px; }
 
-    .week-date { color: #f0f6fc; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-    .week-range { color: #8b949e; font-size: 13px; margin-bottom: 10px; }
+    .week-date { color: var(--text-heading); font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .week-range { color: var(--text-secondary); font-size: 13px; margin-bottom: 10px; }
 
     .week-alloc { display: flex; gap: 8px; }
     .alloc-chip { font-size: 11px; padding: 3px 8px; border-radius: 10px; font-weight: 500; }
-    .alloc-chip.client { background: rgba(31,111,235,0.15); color: #58a6ff; }
-    .alloc-chip.tech { background: rgba(218,54,51,0.15); color: #f85149; }
-    .alloc-chip.rnd { background: rgba(35,134,54,0.15); color: #3fb950; }
+    .alloc-chip.client { background: rgba(31,111,235,0.15); color: var(--accent); }
+    .alloc-chip.tech { background: rgba(218,54,51,0.15); color: var(--danger); }
+    .alloc-chip.rnd { background: rgba(35,134,54,0.15); color: var(--success); }
 
-    .empty { text-align: center; padding: 60px; color: #8b949e; }
+    .empty { text-align: center; padding: 60px; color: var(--text-secondary); }
     .empty p { margin: 0 0 4px; }
     .hint { font-size: 13px; }
   `]

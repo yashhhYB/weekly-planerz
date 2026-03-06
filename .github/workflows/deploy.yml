@@ -64,7 +64,7 @@ jobs:
 
       - name: Publish release
         working-directory: backend
-        run: dotnet publish src/WeeklyPlanner.API/WeeklyPlanner.API.csproj --configuration Release --output ./publish --no-build
+        run: dotnet publish WeeklyPlanner.API/WeeklyPlanner.API.csproj --configuration Release --output ./publish --no-build
 
       - name: Login to Azure
         uses: azure/login@v2

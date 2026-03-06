@@ -2,23 +2,18 @@ name: Frontend CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
     paths:
       - 'frontend/**'
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: frontend
@@ -27,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -43,5 +38,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Run Tests
+      - name: Test
         run: npm run test -- --watch=false --browsers=ChromeHeadless

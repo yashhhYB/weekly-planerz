@@ -55,8 +55,8 @@ describe('AppComponent', () => {
     component.hideNav = false;
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    const title = compiled.querySelector('.nav-brand h1');
-    expect(title?.textContent).toContain('Weekly Plan');
+    const title = compiled.querySelector('.brand-logo');
+    expect(title?.textContent).toContain('plannerz');
   });
 
   it('should have navigation links', () => {
@@ -75,23 +75,23 @@ describe('AppComponent', () => {
     expect(links.length).toBeGreaterThan(0);
   });
 
-  it('should have planning weeks link when user is lead', () => {
+  it('should have past weeks link', () => {
     component.hideNav = false;
-    fixture.detectChanges(); // trigger ngOnInit
+    fixture.detectChanges();
     component.currentUser = { id: 'lead-1', name: 'Lead', role: UserRole.TeamLead, createdAt: new Date() };
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    const links = compiled.querySelectorAll('[routerLink="/planning"]');
+    const links = compiled.querySelectorAll('[routerLink="/weeks"]');
     expect(links.length).toBeGreaterThan(0);
   });
 
-  it('should not have planning link when user is member', () => {
+  it('should not have planning link in navbar', () => {
     component.hideNav = false;
-    fixture.detectChanges(); // trigger ngOnInit
+    fixture.detectChanges();
     component.currentUser = { id: 'mem-1', name: 'Member', role: UserRole.TeamMember, createdAt: new Date() };
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    const links = compiled.querySelectorAll('[routerLink="/planning"]');
+    const links = compiled.querySelectorAll('.nav-links [routerLink="/planning"]');
     expect(links.length).toBe(0);
   });
 

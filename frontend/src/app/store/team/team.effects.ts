@@ -5,6 +5,13 @@ import { map, exhaustMap, catchError, tap } from 'rxjs/operators';
 import { TeamService, ToastService } from '../../core/services';
 import * as TeamActions from './team.actions';
 
+/**
+ * NgRx side-effects for the Team feature.
+ *
+ * Each effect listens for a dispatched action, delegates to {@link TeamService}
+ * for HTTP calls, and maps the response to a success or failure action.
+ * Non-dispatching effects display toast notifications for user feedback.
+ */
 @Injectable()
 export class TeamEffects {
   constructor(
@@ -13,6 +20,7 @@ export class TeamEffects {
     private toast: ToastService
   ) {}
 
+  /** Fetches all team members from the API. */
   loadTeamMembers$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.loadTeamMembers),
@@ -25,6 +33,7 @@ export class TeamEffects {
     )
   );
 
+  /** Creates a new team member via the API. */
   createTeamMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.createTeamMember),
@@ -37,6 +46,7 @@ export class TeamEffects {
     )
   );
 
+  /** Updates an existing team member via the API. */
   updateTeamMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.updateTeamMember),
@@ -49,6 +59,7 @@ export class TeamEffects {
     )
   );
 
+  /** Deletes a team member by ID via the API. */
   deleteTeamMember$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.deleteTeamMember),
@@ -61,6 +72,7 @@ export class TeamEffects {
     )
   );
 
+  /** Promotes a member to Team Lead via the API. */
   setTeamLead$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.setTeamLead),
@@ -73,7 +85,9 @@ export class TeamEffects {
     )
   );
 
-  // Toast notifications
+  /* ---------- Toast notification effects (non-dispatching) ---------- */
+
+  /** Shows a success toast when a member is created. */
   createSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.createTeamMemberSuccess),
@@ -81,6 +95,7 @@ export class TeamEffects {
     ), { dispatch: false }
   );
 
+  /** Shows a success toast when a member is deleted. */
   deleteSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.deleteTeamMemberSuccess),
@@ -88,6 +103,7 @@ export class TeamEffects {
     ), { dispatch: false }
   );
 
+  /** Shows a success toast when a new Team Lead is set. */
   setLeadSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TeamActions.setTeamLeadSuccess),
@@ -95,6 +111,7 @@ export class TeamEffects {
     ), { dispatch: false }
   );
 
+  /** Displays an error toast for any team-related failure action. */
   errors$ = createEffect(() =>
     this.actions$.pipe(
       ofType(

@@ -19,7 +19,11 @@ import { UserContextService } from '../../../../core/services/user-context.servi
     <div class="setup-page">
       <div class="setup-card">
         <div class="card-header">
-          <div class="icon-circle">📅</div>
+          <div class="icon-circle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
           <h1 class="app-title">Weekly Planner</h1>
           <p class="app-subtitle">Set up your team to get started</p>
         </div>
@@ -43,7 +47,10 @@ import { UserContextService } from '../../../../core/services/user-context.servi
           <div class="member-row" *ngFor="let member of members">
             <div class="member-left">
               <span class="member-name">{{ member.name }}</span>
-              <span class="lead-badge" *ngIf="member.role === 2">👑 Lead</span>
+              <span class="lead-badge" *ngIf="member.role === 2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Lead
+              </span>
               <span class="member-badge" *ngIf="member.role !== 2">Member</span>
             </div>
             <div class="member-actions">
@@ -51,13 +58,17 @@ import { UserContextService } from '../../../../core/services/user-context.servi
                 *ngIf="member.role !== 2 && members.length >= 2"
                 class="btn-icon crown"
                 (click)="makeLead(member)"
-                title="Make Lead">👑</button>
+                title="Make Lead">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </button>
               <button
                 class="btn-icon trash"
                 (click)="removeMember(member)"
                 [disabled]="member.role === 2"
                 [class.disabled]="member.role === 2"
-                title="Remove">🗑</button>
+                title="Remove">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -67,7 +78,8 @@ import { UserContextService } from '../../../../core/services/user-context.servi
           (click)="goHome()"
           [disabled]="(memberCount$ | async) === 0"
         >
-          👥 Continue to Home
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Continue to Home
         </button>
       </div>
     </div>
@@ -96,7 +108,7 @@ import { UserContextService } from '../../../../core/services/user-context.servi
       width: 52px; height: 52px; border-radius: 14px;
       background: rgba(0,190,255,0.1); border: 1px solid rgba(0,190,255,0.25);
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px; margin: 0 auto 16px;
+      color: #00d4ff; margin: 0 auto 16px;
     }
     .app-title { color: #00d4ff; font-size: 26px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.5px; }
     .app-subtitle { color: var(--text-muted, #7a8599); font-size: 14px; margin: 0; }
@@ -133,6 +145,7 @@ import { UserContextService } from '../../../../core/services/user-context.servi
     .lead-badge {
       background: rgba(0,190,255,0.12); color: #00d4ff; font-size: 12px; font-weight: 600;
       padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(0,190,255,0.25);
+      display: flex; align-items: center; gap: 4px;
     }
     .member-badge { color: var(--text-muted, #4a5568); font-size: 12px; }
 
@@ -140,9 +153,11 @@ import { UserContextService } from '../../../../core/services/user-context.servi
     .btn-icon {
       background: none; border: none; font-size: 16px; cursor: pointer;
       padding: 4px 6px; border-radius: 6px; opacity: 0.5; transition: all 0.2s;
+      color: var(--text-secondary, #8b949e);
     }
     .btn-icon:hover:not(:disabled) { opacity: 1; }
-    .btn-icon.crown:hover { opacity: 1; transform: scale(1.15); }
+    .btn-icon.crown:hover { opacity: 1; transform: scale(1.15); color: #d29922; }
+    .btn-icon.trash:hover:not(:disabled) { color: var(--danger, #da3633); }
     .btn-icon.disabled { opacity: 0.15; cursor: not-allowed; }
 
     .btn-continue {

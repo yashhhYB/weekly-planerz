@@ -1,29 +1,31 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 as build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 
-COPY ["src/WeeklyPlanner.API/WeeklyPlanner.API.csproj", "src/WeeklyPlanner.API/"]
-COPY ["src/WeeklyPlanner.Application/WeeklyPlanner.Application.csproj", "src/WeeklyPlanner.Application/"]
-COPY ["src/WeeklyPlanner.Domain/WeeklyPlanner.Domain.csproj", "src/WeeklyPlanner.Domain/"]
-COPY ["src/WeeklyPlanner.Infrastructure/WeeklyPlanner.Infrastructure.csproj", "src/WeeklyPlanner.Infrastructure/"]
+# Copy project files for layer-cached restore
+COPY ["WeeklyPlanner.API/WeeklyPlanner.API.csproj", "WeeklyPlanner.API/"]
+COPY ["WeeklyPlanner.Application/WeeklyPlanner.Application.csproj", "WeeklyPlanner.Application/"]
+COPY ["WeeklyPlanner.Domain/WeeklyPlanner.Domain.csproj", "WeeklyPlanner.Domain/"]
+COPY ["WeeklyPlanner.Infrastructure/WeeklyPlanner.Infrastructure.csproj", "WeeklyPlanner.Infrastructure/"]
+COPY ["WeeklyPlanner.sln", "."]
 
-RUN dotnet restore "src/WeeklyPlanner.API/WeeklyPlanner.API.csproj"
+RUN dotnet restore "WeeklyPlanner.API/WeeklyPlanner.API.csproj"
 
+# Copy everything and build
 COPY . .
 
-RUN dotnet build "src/WeeklyPlanner.API/WeeklyPlanner.API.csproj" -c Release -o /app/build
+RUN dotnet build "WeeklyPlanner.API/WeeklyPlanner.API.csproj" -c Release -o /app/build
 
-FROM build as publish
+FROM build AS publish
 
-RUN dotnet publish "src/WeeklyPlanner.API/WeeklyPlanner.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "WeeklyPlanner.API/WeeklyPlanner.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 
 WORKDIR /app
 
 COPY --from=publish /app/publish .
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "WeeklyPlanner.API.dll"]
