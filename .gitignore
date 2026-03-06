@@ -1,5 +1,7 @@
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 .vs/
 *.swp
 *.swo
