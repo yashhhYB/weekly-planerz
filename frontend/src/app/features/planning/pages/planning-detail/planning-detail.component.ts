@@ -11,6 +11,7 @@ import * as TeamSelectors from '../../../../store/team/team.selectors';
 import * as TeamActions from '../../../../store/team/team.actions';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-planning-detail',
@@ -19,8 +20,8 @@ import { ToastService } from '../../../../core/services/toast.service';
   template: `
     <div class="page">
       <div class="header-actions">
-        <button class="btn-back" (click)="goBack()">← Back to list</button>
-        <div class="actions">
+        <button class="btn-back" (click)="goBack()">← {{ isLead ? 'Back to list' : 'Back to Home' }}</button>
+        <div class="actions" *ngIf="isLead">
           <button class="btn-edit" (click)="navigateToEdit()" [disabled]="(planningWeek$ | async)?.isFrozen">Edit</button>
           <button class="btn-freeze" (click)="goToReview()" *ngIf="!(planningWeek$ | async)?.isFrozen">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -48,7 +49,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           <span class="date-range">{{ formatDate(planningWeek.startDate) }} → {{ formatDate(planningWeek.endDate) }}</span>
         </div>
 
-        <div class="transition-bar">
+        <div class="transition-bar" *ngIf="isLead">
           <button *ngIf="planningWeek.status === 1" class="btn-start" (click)="startWeek()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Start Week
@@ -109,8 +110,8 @@ import { ToastService } from '../../../../core/services/toast.service';
           <div class="section-header">
             <h2>Team Members</h2>
             <div class="section-actions">
-              <button class="btn-sm blue" (click)="addAllMembers()" *ngIf="weekMembers.length === 0">+ Add Team</button>
-              <a [routerLink]="['/planning', planningId, 'dashboard']" class="btn-sm green">
+              <button class="btn-sm blue" (click)="addAllMembers()" *ngIf="weekMembers.length === 0 && isLead">+ Add Team</button>
+              <a *ngIf="isLead" [routerLink]="['/planning', planningId, 'dashboard']" class="btn-sm green">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 Dashboard
               </a>
@@ -289,6 +290,7 @@ export class PlanningDetailComponent implements OnInit, OnDestroy {
   error$: Observable<string | null>;
   planningId: string = '';
   weekMembers: WeekMember[] = [];
+  isLead = false;
   private destroy$ = new Subject<void>();
 
   private statusLabels: Record<number, string> = {
@@ -303,7 +305,8 @@ export class PlanningDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private weekMemberService: WeekMemberService,
-    private toast: ToastService
+    private toast: ToastService,
+    private userContext: UserContextService
   ) {
     this.planningWeek$ = new Observable();
     this.loading$ = this.store.select(PlanningSelectors.selectPlanningLoading);
@@ -311,6 +314,7 @@ export class PlanningDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.isLead = this.userContext.isLead;
     this.store.dispatch(TeamActions.loadTeamMembers());
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.planningId = params['id'];
@@ -391,7 +395,11 @@ export class PlanningDetailComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/planning']);
+    if (this.isLead) {
+      this.router.navigate(['/planning']);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
   formatDate(date: Date): string {

@@ -10,6 +10,7 @@ import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 import { UserContextService } from '../../../../core/services/user-context.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-backlog-form',
@@ -33,7 +34,7 @@ import { UserContextService } from '../../../../core/services/user-context.servi
         <div class="form-row">
           <div class="field">
             <label for="category">Category *</label>
-            <select id="category" formControlName="category" required [attr.disabled]="!isLead ? '' : null">
+            <select id="category" formControlName="category" required [attr.disabled]="!isLead ? '' : null" (mousedown)="onCategoryClick($event)" (focus)="onCategoryClick($event)">
               <option [ngValue]="0" disabled>Select Category</option>
               <option *ngFor="let cat of categoryOptions" [ngValue]="cat.value">{{ cat.label }}</option>
             </select>
@@ -120,7 +121,8 @@ export class BacklogFormComponent implements OnInit, OnDestroy {
     private store: Store<AppStoreState>,
     private route: ActivatedRoute,
     private router: Router,
-    private userContext: UserContextService
+    private userContext: UserContextService,
+    private toast: ToastService
   ) {
     this.initializeForm();
     this.error$ = this.store.select(BacklogSelectors.selectBacklogError);
@@ -199,6 +201,14 @@ export class BacklogFormComponent implements OnInit, OnDestroy {
         estimatedHours: this.form.value.estimatedHours
       };
       this.store.dispatch(BacklogActions.createBacklogItem({ request: createRequest }));
+    }
+  }
+
+  onCategoryClick(event: Event): void {
+    if (!this.isLead) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.toast.warning('Only the Team Lead can change category');
     }
   }
 

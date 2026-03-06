@@ -37,6 +37,11 @@ export const PLANNING_ROUTES: Routes = [
     data: { title: 'Lead Dashboard' }
   },
   {
+    path: ':weekId/progress/:weekMemberId',
+    loadComponent: () => import('./pages/update-progress/update-progress.component').then(m => m.UpdateProgressComponent),
+    data: { title: 'Update Progress' }
+  },
+  {
     path: ':id/review',
     loadComponent: () => import('./pages/review-freeze/review-freeze.component').then(m => m.ReviewFreezeComponent),
     data: { title: 'Review & Freeze' }

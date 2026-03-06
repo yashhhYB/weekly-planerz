@@ -9,6 +9,7 @@ import {
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { PlanningService } from '../../../../core/services/planning.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 /** Represents a single freeze prerequisite condition */
 interface FreezeCondition {
@@ -441,10 +442,15 @@ export class ReviewFreezeComponent implements OnInit, OnDestroy {
     private router: Router,
     private weekMemberService: WeekMemberService,
     private planningService: PlanningService,
-    private toast: ToastService
+    private toast: ToastService,
+    private userContext: UserContextService
   ) {}
 
   ngOnInit() {
+    if (!this.userContext.isLead) {
+      this.router.navigate(['/home']);
+      return;
+    }
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.weekId = params['id'];
       this.loadData();

@@ -48,10 +48,11 @@ describe('HomeComponent', () => {
     const weekMemberSpy = jasmine.createSpyObj('WeekMemberService', ['getWeekMembers']);
     weekMemberSpy.getWeekMembers.and.returnValue(of([]));
 
-    const planningServiceSpy = jasmine.createSpyObj('PlanningService', ['deletePlanningWeek']);
+    const planningServiceSpy = jasmine.createSpyObj('PlanningService', ['deletePlanningWeek', 'completePlanningWeek']);
     planningServiceSpy.deletePlanningWeek.and.returnValue(of(undefined));
+    planningServiceSpy.completePlanningWeek.and.returnValue(of(undefined));
 
-    const toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info'], {
+    const toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info', 'warning'], {
       toast$: of()
     });
 

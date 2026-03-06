@@ -7,6 +7,7 @@ import * as PlanningSelectors from '../../../../store/planning/planning.selector
 import * as PlanningActions from '../../../../store/planning/planning.actions';
 import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { Router } from '@angular/router';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 describe('PlanningListComponent', () => {
   let component: PlanningListComponent;
@@ -37,7 +38,8 @@ describe('PlanningListComponent', () => {
       imports: [PlanningListComponent],
       providers: [
         { provide: Store, useValue: storeSpy },
-        { provide: Router, useValue: routerSpy }
+        { provide: Router, useValue: routerSpy },
+        { provide: UserContextService, useValue: { isLead: true } }
       ]
     }).compileComponents();
 

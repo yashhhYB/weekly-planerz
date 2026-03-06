@@ -105,6 +105,7 @@ public class PlanningController : ControllerBase
     /// </summary>
     [HttpPost("{id:guid}/start")]
     [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Start(Guid id, CancellationToken cancellationToken)
     {
@@ -112,7 +113,11 @@ public class PlanningController : ControllerBase
         var result = await _mediator.Send(new StartPlanningWeekCommand(id), cancellationToken);
 
         if (!result.Success)
+        {
+            if (result.Message?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                return NotFound(result);
             return BadRequest(result);
+        }
 
         return Ok(result);
     }
@@ -122,6 +127,7 @@ public class PlanningController : ControllerBase
     /// </summary>
     [HttpPost("{id:guid}/complete")]
     [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
     {
@@ -129,7 +135,11 @@ public class PlanningController : ControllerBase
         var result = await _mediator.Send(new CompletePlanningWeekCommand(id), cancellationToken);
 
         if (!result.Success)
+        {
+            if (result.Message?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                return NotFound(result);
             return BadRequest(result);
+        }
 
         return Ok(result);
     }
@@ -139,6 +149,7 @@ public class PlanningController : ControllerBase
     /// </summary>
     [HttpPost("{id:guid}/archive")]
     [ProducesResponseType(typeof(Result<PlanningWeekDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Archive(Guid id, CancellationToken cancellationToken)
     {
@@ -146,7 +157,11 @@ public class PlanningController : ControllerBase
         var result = await _mediator.Send(new ArchivePlanningWeekCommand(id), cancellationToken);
 
         if (!result.Success)
+        {
+            if (result.Message?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+                return NotFound(result);
             return BadRequest(result);
+        }
 
         return Ok(result);
     }

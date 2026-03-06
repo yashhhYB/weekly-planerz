@@ -11,6 +11,7 @@ import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import * as TeamSelectors from '../../../../store/team/team.selectors';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 describe('PlanningDetailComponent', () => {
   let component: PlanningDetailComponent;
@@ -45,6 +46,7 @@ describe('PlanningDetailComponent', () => {
         { provide: Store, useValue: storeSpy },
         { provide: WeekMemberService, useValue: weekMemberSpy },
         { provide: ToastService, useValue: toastSpy },
+        { provide: UserContextService, useValue: { isLead: true } },
         {
           provide: ActivatedRoute,
           useValue: {

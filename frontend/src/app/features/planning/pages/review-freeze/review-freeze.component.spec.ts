@@ -6,6 +6,7 @@ import { PlanningService } from '../../../../core/services/planning.service';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PlanningStatus } from '../../../../models';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 /**
  * Unit tests for ReviewFreezeComponent
@@ -71,7 +72,8 @@ describe('ReviewFreezeComponent', () => {
         { provide: ActivatedRoute, useValue: { params: routeParams$.asObservable() } },
         { provide: PlanningService, useValue: planningSpy },
         { provide: WeekMemberService, useValue: weekMemberSpy },
-        { provide: ToastService, useValue: toastSpy }
+        { provide: ToastService, useValue: toastSpy },
+        { provide: UserContextService, useValue: { isLead: true } }
       ]
     }).compileComponents();
 

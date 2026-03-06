@@ -10,6 +10,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 describe('PlanningFormComponent', () => {
   let component: PlanningFormComponent;
@@ -45,6 +46,7 @@ describe('PlanningFormComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: WeekMemberService, useValue: weekMemberSpy },
         { provide: ToastService, useValue: toastSpy },
+        { provide: UserContextService, useValue: { isLead: true } },
         {
           provide: ActivatedRoute,
           useValue: {

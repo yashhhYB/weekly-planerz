@@ -7,12 +7,15 @@ import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 import { BacklogItem, BacklogCategory } from '../../../../models';
 import { Router } from '@angular/router';
+import { UserContextService } from '../../../../core/services/user-context.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 describe('BacklogListComponent', () => {
   let component: BacklogListComponent;
   let fixture: ComponentFixture<BacklogListComponent>;
   let store: jasmine.SpyObj<Store<AppStoreState>>;
   let router: jasmine.SpyObj<Router>;
+  let toastService: jasmine.SpyObj<ToastService>;
 
   const mockBacklogItems: BacklogItem[] = [
     {
@@ -38,17 +41,25 @@ describe('BacklogListComponent', () => {
   beforeEach(async () => {
     const storeSpy = jasmine.createSpyObj('Store', ['select', 'dispatch']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'warning', 'info']);
+    const mockUserContext = {
+      currentUser$: of({ id: '1', name: 'Lead', role: 2 }),
+      isLead: true
+    };
 
     await TestBed.configureTestingModule({
       imports: [BacklogListComponent],
       providers: [
         { provide: Store, useValue: storeSpy },
-        { provide: Router, useValue: routerSpy }
+        { provide: Router, useValue: routerSpy },
+        { provide: UserContextService, useValue: mockUserContext },
+        { provide: ToastService, useValue: toastSpy }
       ]
     }).compileComponents();
 
     store = TestBed.inject(Store) as jasmine.SpyObj<Store<AppStoreState>>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
 
     storeSpy.select.and.callFake((selector: any) => {
       if (selector === BacklogSelectors.selectAllBacklogItems) {
@@ -128,10 +139,19 @@ describe('BacklogListComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/backlog', '1']);
   });
 
-  it('should navigate to edit view', () => {
+  it('should navigate to edit view when lead', () => {
     fixture.detectChanges();
-    component.navigateToEdit('1');
+    component.isLead = true;
+    component.handleEdit('1');
     expect(router.navigate).toHaveBeenCalledWith(['/backlog', '1', 'edit']);
+  });
+
+  it('should show warning when non-lead tries to edit', () => {
+    fixture.detectChanges();
+    component.isLead = false;
+    component.handleEdit('1');
+    expect(toastService.warning).toHaveBeenCalledWith('Only the Team Lead can edit backlog items.');
+    expect(router.navigate).not.toHaveBeenCalledWith(['/backlog', '1', 'edit']);
   });
 
   it('should dispatch archiveBacklogItem with confirmation', () => {

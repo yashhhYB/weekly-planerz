@@ -9,6 +9,7 @@ import { AppStoreState } from '../../../../store';
 import * as BacklogSelectors from '../../../../store/backlog/backlog.selectors';
 import * as BacklogActions from '../../../../store/backlog/backlog.actions';
 import { UserContextService } from '../../../../core/services/user-context.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-backlog-list',
@@ -63,7 +64,7 @@ import { UserContextService } from '../../../../core/services/user-context.servi
                 <span *ngIf="!item.isArchived" class="status-badge active">Active</span>
               </td>
               <td class="actions">
-                <button class="btn-sm" (click)="navigateToEdit(item.id)" [disabled]="item.isArchived">Edit</button>
+                <button class="btn-sm" (click)="handleEdit(item.id)" [disabled]="item.isArchived">Edit</button>
                 <button *ngIf="!item.isArchived && isLead" class="btn-sm danger" (click)="archiveItem(item.id)">Archive</button>
               </td>
             </tr>
@@ -175,7 +176,8 @@ export class BacklogListComponent implements OnInit {
   constructor(
     private store: Store<AppStoreState>,
     private router: Router,
-    private userContext: UserContextService
+    private userContext: UserContextService,
+    private toast: ToastService
   ) {
     this.backlogItems$ = this.store.select(BacklogSelectors.selectAllBacklogItems);
     this.loading$ = this.store.select(BacklogSelectors.selectBacklogLoading);
@@ -237,7 +239,11 @@ export class BacklogListComponent implements OnInit {
     this.router.navigate(['/backlog', id]);
   }
 
-  navigateToEdit(id: string): void {
+  handleEdit(id: string): void {
+    if (!this.isLead) {
+      this.toast.warning('Only the Team Lead can edit backlog items.');
+      return;
+    }
     this.router.navigate(['/backlog', id, 'edit']);
   }
 
