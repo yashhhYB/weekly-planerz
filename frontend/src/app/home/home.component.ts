@@ -114,8 +114,8 @@ import { ToastService } from '../core/services/toast.service';
           </button>
         </div>
 
-        <!-- Lead WITH active week: 6 cards -->
-        <div class="actions-grid" *ngIf="activeWeek">
+        <!-- Lead WITH active week (pre-freeze): 6 cards -->
+        <div class="actions-grid" *ngIf="activeWeek && !activeWeek.isFrozen">
           <button class="action-card ice" (click)="goToFreeze()">
             <div class="action-icon-wrap frost"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
             <div class="action-text">
@@ -171,6 +171,63 @@ import { ToastService } from '../core/services/toast.service';
           </button>
         </div>
 
+        <!-- Lead WITH active week (post-freeze): 6 cards -->
+        <div class="actions-grid" *ngIf="activeWeek && activeWeek.isFrozen">
+          <button class="action-card primary" (click)="navigateTo('/planning/' + activeWeek.id + '/dashboard')">
+            <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="action-text">
+              <strong>See Team Progress</strong>
+              <p>View the team's overall progress and stats.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="goToUpdateProgress()">
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+            <div class="action-text">
+              <strong>Update My Progress</strong>
+              <p>Log actual hours and track task completion.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card start-card" (click)="completeWeek()">
+            <div class="action-icon-wrap rocket"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="action-text">
+              <strong>Finish This Week</strong>
+              <p>Mark the week as completed for all members.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/backlog')">
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <div class="action-text">
+              <strong>Manage Backlog</strong>
+              <p>Add, edit, or browse work items.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/team')">
+            <div class="action-icon-wrap purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <div class="action-text">
+              <strong>Manage Team Members</strong>
+              <p>Add or remove team members.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/weeks')">
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="action-text">
+              <strong>View Past Weeks</strong>
+              <p>Look at completed planning cycles.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+        </div>
+
       </ng-container>
 
       <!-- ===== MEMBER VIEW ===== -->
@@ -202,13 +259,52 @@ import { ToastService } from '../core/services/toast.service';
           </button>
         </div>
 
-        <!-- Member WITH active week: 3 cards -->
-        <div class="actions-grid member-grid" *ngIf="activeWeek">
+        <!-- Member WITH active week (pre-freeze): 3 cards -->
+        <div class="actions-grid member-grid" *ngIf="activeWeek && !activeWeek.isFrozen">
           <button class="action-card primary" (click)="goToPlanMyWork()">
             <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
             <div class="action-text">
               <strong>Plan My Work</strong>
               <p>Pick backlog items and commit your 30 hours.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/backlog')">
+            <div class="action-icon-wrap green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <div class="action-text">
+              <strong>Manage Backlog</strong>
+              <p>Add, edit, or browse work items.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/weeks')">
+            <div class="action-icon-wrap gray"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="action-text">
+              <strong>View Past Weeks</strong>
+              <p>Look at completed planning cycles.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- Member WITH active week (post-freeze): 4 cards -->
+        <div class="actions-grid member-grid" *ngIf="activeWeek && activeWeek.isFrozen">
+          <button class="action-card primary" (click)="goToUpdateProgress()">
+            <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+            <div class="action-text">
+              <strong>Update My Progress</strong>
+              <p>Log actual hours and track task completion.</p>
+            </div>
+            <span class="action-arrow">→</span>
+          </button>
+
+          <button class="action-card" (click)="navigateTo('/planning/' + activeWeek.id + '/dashboard')">
+            <div class="action-icon-wrap blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="action-text">
+              <strong>See Team Progress</strong>
+              <p>View the team's overall progress and stats.</p>
             </div>
             <span class="action-arrow">→</span>
           </button>
@@ -441,7 +537,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         w.status === PlanningStatus.InProgress || w.status === PlanningStatus.Setup
       ) || null;
 
-      if (this.activeWeek && this.currentUser && !this.isLead) {
+      if (this.activeWeek && this.currentUser) {
         this.loadMemberPlan(this.activeWeek.id, this.currentUser.id);
       } else {
         this.memberWeekMember = null;
@@ -450,8 +546,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private loadMemberPlan(weekId: string, memberId: string): void {
-    this.weekMemberService.getWeekMembers(weekId).subscribe(members => {
-      this.memberWeekMember = members.find(m => m.memberId === memberId) || null;
+    this.weekMemberService.getWeekMembers(weekId).subscribe({
+      next: (members) => {
+        this.memberWeekMember = members.find(m => m.memberId === memberId) || null;
+      },
+      error: () => {
+        this.memberWeekMember = null;
+      }
     });
   }
 
@@ -471,14 +572,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.activeWeek && this.currentUser) {
       if (this.isLead && this.activeWeek) {
         // Lead's member board
-        this.weekMemberService.getWeekMembers(this.activeWeek.id).subscribe(members => {
-          const myWm = members.find(m => m.memberId === this.currentUser!.id);
-          if (myWm) {
-            this.router.navigate(['/planning', this.activeWeek!.id, 'board', myWm.id]);
-          } else {
-            this.toast.info('You are not assigned to this week. Add yourself in the planning form.');
-            this.router.navigate(['/planning', this.activeWeek!.id]);
-          }
+        this.weekMemberService.getWeekMembers(this.activeWeek.id).subscribe({
+          next: (members) => {
+            const myWm = members.find(m => m.memberId === this.currentUser!.id);
+            if (myWm) {
+              this.router.navigate(['/planning', this.activeWeek!.id, 'board', myWm.id]);
+            } else {
+              this.toast.info('You are not assigned to this week. Add yourself in the planning form.');
+              this.router.navigate(['/planning', this.activeWeek!.id]);
+            }
+          },
+          error: () => this.toast.error('Failed to load week members.')
         });
       } else if (this.memberWeekMember) {
         this.router.navigate(['/planning', this.activeWeek.id, 'board', this.memberWeekMember.id]);
@@ -487,6 +591,46 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     } else {
       this.toast.info('No active week. Ask your lead to start a new planning week.');
+    }
+  }
+
+  goToUpdateProgress(): void {
+    if (!this.activeWeek || !this.currentUser) {
+      this.toast.info('No active week available.');
+      return;
+    }
+    if (this.memberWeekMember) {
+      this.router.navigate(['/planning', this.activeWeek.id, 'progress', this.memberWeekMember.id]);
+    } else {
+      // lookup member
+      this.weekMemberService.getWeekMembers(this.activeWeek.id).subscribe({
+        next: (members) => {
+          const myWm = members.find(m => m.memberId === this.currentUser!.id);
+          if (myWm) {
+            this.router.navigate(['/planning', this.activeWeek!.id, 'progress', myWm.id]);
+          } else {
+            this.toast.info('You are not assigned to this week.');
+          }
+        },
+        error: () => this.toast.error('Failed to load week members.')
+      });
+    }
+  }
+
+  completeWeek(): void {
+    if (!this.activeWeek) {
+      this.toast.info('No active week to complete.');
+      return;
+    }
+    if (confirm('Mark this week as completed? This will finalize all member plans.')) {
+      this.planningService.completePlanningWeek(this.activeWeek.id).subscribe({
+        next: () => {
+          this.toast.success('Week marked as completed!');
+          this.store.dispatch(PlanningActions.loadPlanningWeeks({ skip: 0, take: 50 }));
+          this.activeWeek = null;
+        },
+        error: (err) => this.toast.error(err?.message || 'Failed to complete the week.')
+      });
     }
   }
 
@@ -502,7 +646,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.store.dispatch(PlanningActions.loadPlanningWeeks({ skip: 0, take: 50 }));
           this.activeWeek = null;
         },
-        error: () => this.toast.error('Failed to cancel week planning.')
+        error: (err) => this.toast.error(err?.message || 'Failed to cancel week planning.')
       });
     }
   }

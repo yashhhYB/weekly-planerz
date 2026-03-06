@@ -13,6 +13,7 @@ import * as TeamSelectors from '../../../../store/team/team.selectors';
 import * as TeamActions from '../../../../store/team/team.actions';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-planning-form',
@@ -244,13 +245,19 @@ export class PlanningFormComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private weekMemberService: WeekMemberService,
-    private toast: ToastService
+    private toast: ToastService,
+    private userContext: UserContextService
   ) {
     this.initializeForm();
     this.error$ = this.store.select(PlanningSelectors.selectPlanningError);
   }
 
   ngOnInit(): void {
+    // Only leads can create/edit planning weeks
+    if (!this.userContext.isLead) {
+      this.router.navigate(['/home']);
+      return;
+    }
     // Load team members for selection
     this.store.dispatch(TeamActions.loadTeamMembers());
     this.store.select(TeamSelectors.selectAllTeamMembers)

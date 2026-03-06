@@ -5,6 +5,7 @@ import { LeadDashboardComponent } from './lead-dashboard.component';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { PlanningService } from '../../../../core/services/planning.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 describe('LeadDashboardComponent', () => {
   let component: LeadDashboardComponent;
@@ -33,6 +34,7 @@ describe('LeadDashboardComponent', () => {
         { provide: WeekMemberService, useValue: weekMemberSpy },
         { provide: PlanningService, useValue: planningSpy },
         { provide: ToastService, useValue: toastSpy },
+        { provide: UserContextService, useValue: { isLead: true } },
         { provide: ActivatedRoute, useValue: { params: of({ id: 'w1' }) } }
       ]
     }).compileComponents();

@@ -6,6 +6,7 @@ import { Dashboard } from '../../../../models';
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { PlanningService } from '../../../../core/services/planning.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-lead-dashboard',
@@ -19,7 +20,7 @@ import { ToastService } from '../../../../core/services/toast.service';
             <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
           </svg>
           <div>
-            <h1>Lead Dashboard</h1>
+            <h1>{{ isLead ? 'Lead Dashboard' : 'Team Progress' }}</h1>
             <p class="subtitle" *ngIf="dashboard">{{ dashboard.weekLabel }}</p>
           </div>
         </div>
@@ -49,7 +50,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               Frozen
             </span>
           </div>
-          <div class="status-actions">
+          <div class="status-actions" *ngIf="isLead">
             <button class="btn-action freeze" *ngIf="!dashboard.isFrozen && dashboard.status <= 1" (click)="goToReview()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
               Review & Freeze
@@ -300,6 +301,7 @@ export class LeadDashboardComponent implements OnInit, OnDestroy {
   dashboard: Dashboard | null = null;
   loading = true;
   error: string | null = null;
+  isLead = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -307,10 +309,12 @@ export class LeadDashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private weekMemberService: WeekMemberService,
     private planningService: PlanningService,
-    private toast: ToastService
+    private toast: ToastService,
+    private userContext: UserContextService
   ) {}
 
   ngOnInit() {
+    this.isLead = this.userContext.isLead;
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.weekId = params['id'];
       this.loadDashboard();
@@ -330,7 +334,13 @@ export class LeadDashboardComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Failed to load dashboard';
+        const msg = err?.message || err?.error?.message || 'Failed to load dashboard';
+        if (msg.toLowerCase().includes('not found')) {
+          this.toast.error('Planning week not found.');
+          this.router.navigate(['/home']);
+        } else {
+          this.error = msg;
+        }
         this.loading = false;
       }
     });

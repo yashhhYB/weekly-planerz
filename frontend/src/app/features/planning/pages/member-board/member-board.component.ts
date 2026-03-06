@@ -7,6 +7,7 @@ import { WeekMember, MemberTask, BacklogItem, BacklogCategory, BacklogCategoryLa
 import { WeekMemberService } from '../../../../core/services/week-member.service';
 import { BacklogService } from '../../../../core/services/backlog.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-member-board',
@@ -26,7 +27,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           </div>
         </div>
         <div class="header-actions">
-          <a [routerLink]="['/planning', weekId]" class="btn-back">
+          <a *ngIf="isLead" [routerLink]="['/planning', weekId]" class="btn-back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Back to Week
           </a>
@@ -217,6 +218,7 @@ export class MemberBoardComponent implements OnInit, OnDestroy {
   assignHours: Record<string, number> = {};
   totalPlanned = 0;
   categoryQuotas: { category: number; label: string; color: string; maxHours: number; usedHours: number }[] = [];
+  isLead = false;
 
   private destroy$ = new Subject<void>();
 
@@ -225,8 +227,11 @@ export class MemberBoardComponent implements OnInit, OnDestroy {
     private router: Router,
     private weekMemberService: WeekMemberService,
     private backlogService: BacklogService,
-    private toast: ToastService
-  ) {}
+    private toast: ToastService,
+    private userContext: UserContextService
+  ) {
+    this.isLead = this.userContext.isLead;
+  }
 
   ngOnInit() {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {

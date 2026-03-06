@@ -7,6 +7,7 @@ import { PlanningWeek, PlanningStatus } from '../../../../models';
 import { AppStoreState } from '../../../../store';
 import * as PlanningSelectors from '../../../../store/planning/planning.selectors';
 import * as PlanningActions from '../../../../store/planning/planning.actions';
+import { UserContextService } from '../../../../core/services/user-context.service';
 
 @Component({
   selector: 'app-planning-list',
@@ -155,7 +156,8 @@ export class PlanningListComponent implements OnInit {
 
   constructor(
     private store: Store<AppStoreState>,
-    private router: Router
+    private router: Router,
+    private userContext: UserContextService
   ) {
     this.planningWeeks$ = this.store.select(PlanningSelectors.selectAllPlanningWeeks);
     this.loading$ = this.store.select(PlanningSelectors.selectPlanningLoading);
@@ -163,6 +165,11 @@ export class PlanningListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Only leads can access the planning list page
+    if (!this.userContext.isLead) {
+      this.router.navigate(['/home']);
+      return;
+    }
     this.store.dispatch(PlanningActions.loadPlanningWeeks({ skip: 0, take: 50 }));
   }
 
