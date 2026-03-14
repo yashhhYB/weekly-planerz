@@ -1,4 +1,8 @@
-name: Deploy to Azure
+name: Release Verification
+
+# Vercel and Railway handle deployment automatically via their GitHub integrations.
+# This workflow verifies that both release builds are valid before those
+# integrations pick up the commit.
 
 on:
   push:
@@ -6,72 +10,48 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  AZURE_WEBAPP_NAME: weeklyplanner-api
-  AZURE_STATIC_WEB_APP_NAME: weeklyplanner-web
-  RESOURCE_GROUP: weekly-planner-rg
-
 jobs:
-  # Frontend deployment to Azure Static Web Apps
-  deploy-frontend:
+  verify-backend:
+    name: Backend Release Build
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
-      
-      - name: Install dependencies
-        working-directory: frontend
-        run: npm ci --legacy-peer-deps
-      
-      - name: Deploy to Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.STATIC_WEB_APPS_TOKEN }}
-          action: 'upload'
-          app_location: 'frontend'
-          api_location: ''
-          output_location: 'dist/weekly-planner'
-
-  # Backend build, test, and deploy to Azure Web App
-  deploy-backend:
-    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        working-directory: backend
+      - name: Restore
         run: dotnet restore
 
       - name: Build
-        working-directory: backend
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
-        working-directory: backend
+      - name: Test
         run: dotnet test --configuration Release --no-build --verbosity normal
 
-      - name: Publish release
-        working-directory: backend
-        run: dotnet publish WeeklyPlanner.API/WeeklyPlanner.API.csproj --configuration Release --output ./publish --no-build
+  verify-frontend:
+    name: Frontend Release Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Login to Azure
-        uses: azure/login@v2
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: weeklyplanner-api
-          package: backend/publish/
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
