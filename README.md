@@ -99,74 +99,32 @@ The repository follows a **clear separation between frontend, backend, documenta
 ```text id="3qolqa"
 weekly-planerz
 │
-├── .github
-│   └── workflows
-│       ├── backend-ci.yml          # Backend build & test pipeline
-│       ├── frontend-ci.yml         # Frontend build & lint pipeline
-│       ├── quality-gate.yml        # Pull request validation
-│       └── deploy.yml              # Deployment verification workflow
+├── frontend/                     # Angular 17 web application
+│   ├── src/
+│   │   ├── app/                  # Features, services, shared UI
+│   │   └── environments/         # Environment configuration
+│   ├── angular.json
+│   ├── package.json
+│   └── vercel.json               # Vercel deployment configuration
 │
-├── backend
-│   │
-│   ├── WeeklyPlanner.API
-│   │   ├── Controllers             # REST API endpoints
-│   │   ├── Middleware              # Request pipeline middleware
-│   │   └── Program.cs              # Application startup
-│   │
-│   ├── WeeklyPlanner.Application
-│   │   ├── Commands                # CQRS command handlers
-│   │   ├── Queries                 # CQRS query handlers
-│   │   ├── DTOs                    # Data transfer objects
-│   │   └── Validators              # FluentValidation rules
-│   │
-│   ├── WeeklyPlanner.Domain
-│   │   ├── Entities                # Core business entities
-│   │   ├── Enums                   # Domain enumerations
-│   │   └── Rules                   # Business constraints
-│   │
-│   ├── WeeklyPlanner.Infrastructure
-│   │   ├── Persistence             # Database context & migrations
-│   │   ├── Repositories            # Data access implementations
-│   │   └── Configuration           # Infrastructure configuration
-│   │
-│   ├── WeeklyPlanner.Tests
-│   │   └── Unit tests for domain and application logic
-│   │
-│   ├── WeeklyPlanner.IntegrationTests
-│   │   └── API-level integration tests
-│   │
-│   └── Dockerfile                  # Backend container configuration
+├── backend/                      # ASP.NET Core 8 backend
+│   ├── WeeklyPlanner.API/        # REST controllers & middleware
+│   ├── WeeklyPlanner.Application/# CQRS commands, queries, validators
+│   ├── WeeklyPlanner.Domain/     # Core business entities & rules
+│   ├── WeeklyPlanner.Infrastructure/ # EF Core, repositories, persistence
+│   └── Dockerfile
 │
-├── frontend
-│   │
-│   ├── src
-│   │   ├── app
-│   │   │   ├── features            # Feature modules (planning, backlog, team)
-│   │   │   ├── core                # Services, interceptors, global utilities
-│   │   │   ├── shared              # Reusable UI components
-│   │   │   └── store               # State management
-│   │   │
-│   │   └── environments            # Environment configurations
-│   │
-│   ├── angular.json                # Angular workspace configuration
-│   ├── package.json                # Frontend dependencies
-│   └── vercel.json                 # Vercel deployment configuration
+├── .github/                      # CI/CD automation
+│   └── workflows/
+│       ├── backend-ci.yml
+│       ├── frontend-ci.yml
+│       ├── quality-gate.yml
+│       └── deploy.yml
 │
-├── docs
-│   ├── architecture.md             # System architecture documentation
-│   ├── api-contract.md             # API contract definitions
-│   ├── business-rules.md           # Business rule specifications
-│   └── reliability-runbook.md      # Operational reliability guide
-│
-├── diagrams
-│   └── Architecture and workflow diagrams
-│
-├── tests
-│   ├── e2e-tests                   # End-to-end testing scenarios
-│   └── integration-tests           # Cross-service integration tests
+├── docs/                         # Architecture & operational documentation
+├── tests/                        # Integration and end-to-end tests
 │
 ├── .gitignore
-├── .railwayignore
 ├── LICENSE
 └── README.md
 ```
