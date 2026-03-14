@@ -1,125 +1,183 @@
 # Weekly Planerz
 
-Weekly Planerz is a full-stack planning platform for engineering teams. It helps leads and members plan weekly work, enforce effort limits, and execute with clear ownership and visibility.
+Weekly Planerz is a **full-stack planning platform designed for engineering teams to organize weekly work, enforce workload limits, and track execution with full visibility**.
 
-## Project At A Glance
+The system introduces a **rule-driven planning workflow** where critical planning constraints are validated on the backend, ensuring predictable planning cycles and preventing inconsistent or invalid states.
 
-- Frontend: Angular 17 SPA on Vercel
-- Backend: ASP.NET Core 8 API on Railway
-- Architecture style: Clean Architecture + CQRS
-- Goal: predictable planning with strict server-side business rules
+Built with **Angular 17 and ASP.NET Core 8**, the platform follows **Clean Architecture principles** and is deployed in production using **Vercel and Railway**.
 
-## What Is Implemented
+---
 
-- Weekly planning lifecycle from setup to archive
-- Backlog management with category-based planning
-- Team member role workflows for lead and member views
-- Dashboard views for planning status and execution progress
-- Health and reliability checks for production monitoring
+# Table of Contents
 
-## Repository Structure
+- **Product Overview**
+  - [Overview](#overview)
+  - [Problem This Project Solves](#the-problem-this-project-solves)
+  - [Live Production System](#live-production-system)
 
-```text
-weekly-planerz-main/
-├── .github/
-│   └── workflows/
-│       ├── backend-ci.yml        # Builds and tests backend on every push
-│       ├── frontend-ci.yml       # Builds, lints, and tests frontend on every push
-│       ├── quality-gate.yml      # Full quality checks on every pull request
-│       └── deploy.yml            # Release verification before Vercel/Railway pick up commits
-├── backend/
-│   ├── WeeklyPlanner.API/        # HTTP API, middleware, startup
-│   ├── WeeklyPlanner.Application/# Use-cases, commands, queries, validators
-│   ├── WeeklyPlanner.Domain/     # Core business rules and entities
-│   ├── WeeklyPlanner.Infrastructure/ # EF Core, repositories, migrations
-│   ├── WeeklyPlanner.IntegrationTests/
-│   ├── WeeklyPlanner.Tests/
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── app/                  # Features, core, store, shared
-│   │   └── environments/
-│   ├── angular.json
-│   ├── package.json
-│   └── vercel.json
-├── docs/
-│   ├── README.md
-│   ├── architecture.md
-│   ├── api-contract.md
-│   ├── business-rules.md
-│   ├── planning-rules.md
-│   └── reliability-30-day-runbook.md
-├── tests/
-│   ├── README.md
-│   ├── e2e-tests/
-│   └── integration-tests/
-├── diagrams/
-│   └── README.md
+- **System Design**
+  - [Repository Structure](#repository-structure)
+  - [System Architecture](#system-architecture)
+  - [Core Product Modules](#core-product-modules)
+  - [Planning Workflow](#planning-workflow)
+
+- **Engineering Details**
+  - [Domain Model](#domain-model)
+  - [Business Rules](#business-rules)
+  - [Technology Stack](#technology-stack)
+  - [API Overview](#api-overview)
+
+- **Development & Operations**
+  - [Local Development Setup](#local-development-setup)
+  - [Testing Strategy](#testing-strategy)
+  - [CI/CD Pipeline](#cicd-pipeline)
+  - [Deployment Model](#deployment-model)
+
+- **Project Standards**
+  - [Engineering Principles](#engineering-principles)
+  - [Author](#author)
+
+---
+
+# Overview
+
+Weekly Planerz provides engineering teams with a **structured environment for weekly planning and execution**.
+
+Instead of informal planning using spreadsheets or meetings, the platform introduces a **controlled planning lifecycle** that ensures:
+
+* balanced workload distribution
+* transparent ownership of tasks
+* consistent planning processes
+* reliable execution tracking
+* historical planning insights
+
+The system is designed so that **planning rules cannot be bypassed**, since they are enforced in the backend domain layer.
+
+---
+
+# The Problem This Project Solves
+
+Engineering teams frequently encounter planning inefficiencies such as:
+
+* tasks being over-allocated
+* lack of clear ownership
+* inconsistent planning processes
+* limited visibility into execution progress
+* planning rules being applied inconsistently
+
+Weekly Planerz addresses these issues by introducing **a rule-enforced planning framework**.
+
+Key guarantees:
+
+* every team member receives exactly **30 hours of planned work**
+* planning categories remain balanced
+* planning weeks follow a **strict lifecycle**
+* frozen plans cannot be modified
+* team leads have full execution visibility
+
+---
+
+# Live Production System
+
+The application is deployed and publicly accessible.
+
+| Component             | URL                                                |
+| --------------------- | -------------------------------------------------- |
+| Frontend              | https://frontend-six-ruby-62.vercel.app            |
+| Backend API           | https://api-production-b715.up.railway.app         |
+| Swagger Documentation | https://api-production-b715.up.railway.app/swagger |
+| Health Monitoring     | https://api-production-b715.up.railway.app/health  |
+
+These endpoints allow reviewers to **explore the system and interact with the API directly**.
+
+---
+
+# Repository Structure
+
+The repository follows a **clear separation between frontend, backend, documentation, and operational configuration**.
+
+```text id="3qolqa"
+weekly-planerz
+│
+├── .github
+│   └── workflows
+│       ├── backend-ci.yml          # Backend build & test pipeline
+│       ├── frontend-ci.yml         # Frontend build & lint pipeline
+│       ├── quality-gate.yml        # Pull request validation
+│       └── deploy.yml              # Deployment verification workflow
+│
+├── backend
+│   │
+│   ├── WeeklyPlanner.API
+│   │   ├── Controllers             # REST API endpoints
+│   │   ├── Middleware              # Request pipeline middleware
+│   │   └── Program.cs              # Application startup
+│   │
+│   ├── WeeklyPlanner.Application
+│   │   ├── Commands                # CQRS command handlers
+│   │   ├── Queries                 # CQRS query handlers
+│   │   ├── DTOs                    # Data transfer objects
+│   │   └── Validators              # FluentValidation rules
+│   │
+│   ├── WeeklyPlanner.Domain
+│   │   ├── Entities                # Core business entities
+│   │   ├── Enums                   # Domain enumerations
+│   │   └── Rules                   # Business constraints
+│   │
+│   ├── WeeklyPlanner.Infrastructure
+│   │   ├── Persistence             # Database context & migrations
+│   │   ├── Repositories            # Data access implementations
+│   │   └── Configuration           # Infrastructure configuration
+│   │
+│   ├── WeeklyPlanner.Tests
+│   │   └── Unit tests for domain and application logic
+│   │
+│   ├── WeeklyPlanner.IntegrationTests
+│   │   └── API-level integration tests
+│   │
+│   └── Dockerfile                  # Backend container configuration
+│
+├── frontend
+│   │
+│   ├── src
+│   │   ├── app
+│   │   │   ├── features            # Feature modules (planning, backlog, team)
+│   │   │   ├── core                # Services, interceptors, global utilities
+│   │   │   ├── shared              # Reusable UI components
+│   │   │   └── store               # State management
+│   │   │
+│   │   └── environments            # Environment configurations
+│   │
+│   ├── angular.json                # Angular workspace configuration
+│   ├── package.json                # Frontend dependencies
+│   └── vercel.json                 # Vercel deployment configuration
+│
+├── docs
+│   ├── architecture.md             # System architecture documentation
+│   ├── api-contract.md             # API contract definitions
+│   ├── business-rules.md           # Business rule specifications
+│   └── reliability-runbook.md      # Operational reliability guide
+│
+├── diagrams
+│   └── Architecture and workflow diagrams
+│
+├── tests
+│   ├── e2e-tests                   # End-to-end testing scenarios
+│   └── integration-tests           # Cross-service integration tests
+│
 ├── .gitignore
 ├── .railwayignore
 ├── LICENSE
 └── README.md
 ```
 
-The `frontend/` and `backend/` folder names are hard-coded in all four CI workflows and must not be renamed or moved.
+This structure keeps the system **modular, scalable, and easy to navigate**.
 
-## Product Modules
+---
 
-| Module | Purpose |
-|---|---|
-| Planning | Create and manage weekly plans with lifecycle control |
-| Backlog | Maintain prioritized work items and category mapping |
-| Team | Manage members and planning ownership |
-| Dashboard | Track planning and execution visibility |
-| Admin Utilities | Seed, export/import, and reset support |
+# System Architecture
 
-## App Pages (Short Description)
-
-| Page | What You See | How It Works |
-|---|---|---|
-| Home (`/home`) | Quick summary and navigation entry points | Central landing page for planning, backlog, and team actions |
-| Team Setup (`/setup`, `/team/setup`) | Team onboarding and setup form | Creates and updates team foundation data used by planning flows |
-| Team Management (`/team`) | Team member list and role controls | Maintains ownership and role boundaries for weekly planning |
-| Planning List (`/planning`) | All planning weeks with status context | Entry point to create, review, and execute planning cycles |
-| Create/Edit Planning (`/planning/create`, `/planning/:id/edit`) | Planning form with week configuration | Validates setup inputs before persisting planning weeks |
-| Planning Detail (`/planning/:id`) | Week-level detail and member allocations | Orchestrates navigation to board, dashboard, review, and progress screens |
-| Member Board (`/planning/:weekId/board/:weekMemberId`) | Member task board and allocation view | Member-focused execution board tied to a planning week |
-| Lead Dashboard (`/planning/:id/dashboard`) | Lead-level status and progress view | Consolidates team planning and execution health for leadership |
-| Review and Freeze (`/planning/:id/review`) | Final review controls before lock | Applies freeze operation to prevent further mutable edits |
-| Progress Update (`/planning/:weekId/progress/:weekMemberId`) | Progress update form and completion tracking | Updates execution state for member-week assignments |
-| Backlog List (`/backlog`) | Active backlog items and filters | Source of work items used by weekly planning |
-| Backlog Create/Edit (`/backlog/create`, `/backlog/:id/edit`) | Backlog item form | Maintains item quality and category integrity |
-| Backlog Detail (`/backlog/:id`) | Full item details and lifecycle state | Provides item-level traceability and update context |
-| Past Weeks (`/weeks`, `/planning/past`) | Historical planning cycles | Read-focused history for review and operational learning |
-
-## App Flow (Short)
-
-```mermaid
-flowchart TD
-  A[Home] --> B[Team Setup]
-  B --> C[Backlog Management]
-  C --> D[Create Planning Week]
-  D --> E[Planning Detail]
-  E --> F[Member Board]
-  E --> G[Lead Dashboard]
-  E --> H[Review and Freeze]
-  F --> I[Progress Update]
-  I --> G
-  G --> J[Past Weeks]
-```
-
-## Production Endpoints
-
-- Frontend: https://frontend-six-ruby-62.vercel.app
-- Backend API: https://api-production-b715.up.railway.app
-- Swagger: https://api-production-b715.up.railway.app/swagger
-- Health: https://api-production-b715.up.railway.app/health
-
-## Hosting Transition
-
-This project was initially hosted on Azure. After Azure sponsorship credits expired, hosting was shifted to Vercel (frontend) and Railway (backend) to maintain stable and cost-effective production operation.
-
-## High Level Architecture
+The system follows a **three-layer architecture** consisting of frontend, backend services, and persistent storage.
 
 ```mermaid
 flowchart LR
@@ -127,104 +185,166 @@ flowchart LR
 User[Team Member / Lead]
 
 subgraph Frontend
-A[Angular SPA]
-B[Planner Dashboard]
-C[Backlog Manager]
-D[Weekly Planning Board]
+Angular[Angular SPA]
+Dashboard[Planning Dashboard]
+Backlog[Backlog Manager]
+Board[Planning Board]
 end
 
 subgraph Backend
-E[ASP.NET Core API]
-F[Application Services]
-G[Domain Logic]
+API[ASP.NET Core API]
+Application[Application Services]
+Domain[Domain Business Logic]
 end
 
 subgraph Database
-H[(SQLite on Railway Volume)]
+DB[(SQLite Database)]
 end
 
-User --> A
+User --> Angular
+Angular --> Dashboard
+Angular --> Backlog
+Angular --> Board
 
-A --> B
-A --> C
-A --> D
+Dashboard --> API
+Backlog --> API
+Board --> API
 
-B --> E
-C --> E
-D --> E
-
-E --> F
-F --> G
-G --> H
-
-H --> E
-E --> A
+API --> Application
+Application --> Domain
+Domain --> DB
 ```
 
-The backend strictly controls business rules while the frontend focuses on user interaction and visualization.
+All **business rules are validated in the backend domain layer**, ensuring system integrity.
 
-## Architecture Notes
+---
 
-The backend follows layered boundaries:
+# Core Product Modules
 
-- Domain: pure business constraints and lifecycle rules
-- Application: use-case orchestration and validation flow
-- Infrastructure: persistence and external implementation details
-- API: transport, middleware, and endpoint surface
+| Module          | Purpose                                    |
+| --------------- | ------------------------------------------ |
+| Planning        | Create and manage weekly planning cycles   |
+| Backlog         | Maintain prioritized work items            |
+| Team            | Manage team members and planning ownership |
+| Dashboard       | Visualize planning progress and execution  |
+| Admin Utilities | Import, export, and system utilities       |
 
-The frontend is organized for maintainability:
+---
 
-- features for business screens
-- core for services and interceptors
-- store for predictable state transitions
-- shared for reusable UI parts
+# Planning Workflow
 
-## Enforced Business Rules
+The following diagram illustrates how a planning cycle progresses through the system.
 
-The following constraints are validated in the backend domain and application layers:
+```mermaid
+flowchart TD
 
-- Planning week can be created only on Tuesday
-- Category allocation must sum to 100% (with tolerance handling)
-- Member planning must respect the 30-hour policy
-- Frozen plans cannot be modified
-- Status transitions are controlled (Setup -> InProgress -> Completed -> Archived)
+Home --> TeamSetup
+TeamSetup --> Backlog
+Backlog --> CreatePlan
+CreatePlan --> PlanningDetail
+PlanningDetail --> MemberBoard
+PlanningDetail --> LeadDashboard
+PlanningDetail --> ReviewFreeze
+MemberBoard --> ProgressUpdate
+ProgressUpdate --> LeadDashboard
+LeadDashboard --> History
+```
 
-This keeps client-side behavior consistent and prevents invalid state changes.
+This workflow ensures **planning is structured and auditable**.
 
-## Business Value
+---
 
-- Prevents over-allocation with server-validated hour caps
-- Enforces controlled planning lifecycle transitions
-- Protects approved plans using freeze immutability
-- Provides lead/member-specific visibility for weekly execution
+# Domain Model
 
-## Technology Stack
+The domain layer defines the **core business entities**.
 
-| Area | Technologies |
-|---|---|
-| Backend | .NET 8, ASP.NET Core 8, EF Core 8, MediatR, FluentValidation, Serilog |
-| Frontend | Angular 17, TypeScript, NgRx, RxJS |
-| Delivery | GitHub Actions, Docker, Vercel, Railway |
+### BacklogItem
 
-## API Overview
+Represents work items available for planning.
 
-Core route groups:
+Attributes
 
-- /api/Planning for planning lifecycle and weekly workflow
-- /api/Backlog for backlog CRUD and archive operations
-- /api/Team for member and role management
-- /api/Admin for seed/import/export/reset utilities
-- /health for operational health checks
+* category (ClientFocused, TechDebt, RnD)
+* estimatedHours
+* archive status
 
-Commonly used routes:
+---
 
-- GET /api/Planning
-- POST /api/Planning/{id}/freeze
-- GET /api/Backlog/active
-- PUT /api/Team/{id}/role
-- GET /health
+### PlanningWeek
 
-Response format is consistent across endpoints:
+Represents a weekly planning cycle.
+
+Rules
+
+* can only be created on **Tuesday**
+* category allocations must equal **100%**
+* frozen plans cannot be modified
+
+---
+
+### PlanEntry
+
+Represents assignment of work to a team member.
+
+Rules
+
+* each member must allocate exactly **30 hours**
+* category limits must be respected
+* progress is tracked during execution
+
+---
+
+# Business Rules
+
+The backend enforces strict planning constraints.
+
+* planning week creation allowed only on Tuesday
+* category allocation must equal 100%
+* each member must allocate exactly 30 hours
+* frozen weeks cannot be modified
+* lifecycle transitions are strictly controlled
+
+Planning lifecycle:
+
+```mermaid
+stateDiagram-v2
+
+[*] --> Setup
+Setup --> InProgress
+InProgress --> Completed
+Completed --> Archived
+```
+
+---
+
+# Technology Stack
+
+| Layer        | Technology                |
+| ------------ | ------------------------- |
+| Frontend     | Angular 17, TypeScript    |
+| Backend      | ASP.NET Core 8            |
+| Architecture | Clean Architecture + CQRS |
+| Messaging    | MediatR                   |
+| Validation   | FluentValidation          |
+| Logging      | Serilog                   |
+| CI/CD        | GitHub Actions            |
+| Hosting      | Vercel + Railway          |
+
+---
+
+# API Overview
+
+Main API groups:
+
+| Endpoint        | Purpose                   |
+| --------------- | ------------------------- |
+| `/api/Planning` | weekly planning lifecycle |
+| `/api/Backlog`  | backlog item management   |
+| `/api/Team`     | team member management    |
+| `/api/Admin`    | system utilities          |
+| `/health`       | service health check      |
+
+Example response format:
 
 ```json
 {
@@ -236,83 +356,99 @@ Response format is consistent across endpoints:
 }
 ```
 
-## Local Setup
+---
 
-Prerequisites:
+# Local Development Setup
 
-- .NET SDK 8+
-- Node.js 20+
-- npm 10+
-- Docker (optional)
+Prerequisites
 
-Backend:
+* .NET SDK 8+
+* Node.js 20+
+* npm 10+
 
-```bash
+Backend
+
+```
 cd backend
 dotnet restore
-dotnet build
-dotnet run --project WeeklyPlanner.API/
+dotnet run
 ```
 
-Frontend:
+Frontend
 
-```bash
+```
 cd frontend
-npm install --legacy-peer-deps
+npm install
 npm run start
 ```
 
-## Testing
+---
 
-```bash
-# backend
-cd backend && dotnet test
+# Testing Strategy
 
-# frontend headless
-cd frontend && npm run test -- --watch=false --browsers=ChromeHeadless
+Backend tests
 
-# frontend coverage
-cd frontend && npm run test -- --code-coverage
+```
+cd backend
+dotnet test
 ```
 
-## CI And Delivery
+Frontend tests
 
-The repository includes four GitHub Actions workflows under `.github/workflows/`.
+```
+cd frontend
+npm run test
+```
 
-- `backend-ci.yml` — triggered by any push to `backend/`; restores, builds, and tests the .NET solution
-- `frontend-ci.yml` — triggered by any push to `frontend/`; installs, lints, builds, and tests the Angular app
-- `quality-gate.yml` — runs on every pull request to `main` or `develop`; enforces strict build health and test pass rate before merge
-- `deploy.yml` — runs on every push to `main`; verifies both release builds are valid before Vercel and Railway pick up the commit
+Continuous integration ensures all builds and tests pass before deployment.
 
-Vercel and Railway deploy automatically via their GitHub integrations and do not require secrets or manual workflow steps.
+---
 
-## Deployment And Operations
+# CI/CD Pipeline
 
-| Environment | Data Store | API Base URL |
-|---|---|---|
-| Development | SQLite local file | http://localhost:5000/api |
-| Production | SQLite service volume profile | https://api-production-b715.up.railway.app/api |
+```mermaid
+flowchart LR
 
-Daily reliability checks:
+Developer --> GitHub
 
-- health endpoint returns HTTP 200
-- frontend loads without CORS errors
-- one create/read UI flow succeeds end to end
+GitHub --> BackendTests
+GitHub --> FrontendTests
 
-Operational focus for the current hosting model:
+BackendTests --> Build
+FrontendTests --> Build
 
-- Keep Railway runtime variables stable (port, environment, connection string)
-- Keep frontend origin aligned with backend CORS policy
-- Track /health continuously and respond quickly to failures
+Build --> DeployBackend
+Build --> DeployFrontend
+```
 
-## Engineering Standards
+---
 
-- Domain-first business logic
-- Inward dependency direction
-- Consistent API envelopes and error handling
-- Testable command/query flows
-- Health-first production operations
+# Deployment Model
 
-## License
+| Component | Platform                 |
+| --------- | ------------------------ |
+| Frontend  | Vercel                   |
+| Backend   | Railway                  |
+| Database  | SQLite persistent volume |
 
-All rights reserved.
+Deployment is automated via **GitHub integrations**.
+
+---
+
+# Engineering Principles
+
+The system follows modern engineering standards.
+
+* clean architecture
+* domain-driven design
+* strict backend validation
+* modular scalable structure
+* predictable lifecycle transitions
+* production monitoring
+
+---
+
+# Author
+
+**Yash Bodad**
+Full-Stack Engineer focused on building scalable and reliable systems.
