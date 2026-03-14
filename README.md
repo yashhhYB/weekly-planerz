@@ -7,13 +7,24 @@ The system introduces a **rule-driven planning workflow** where critical plannin
 Built with **Angular 17 and ASP.NET Core 8**, the platform follows **Clean Architecture principles** and is deployed in production using **Vercel and Railway**.
 
 ---
+# Live Production System
+
+The application is deployed and publicly accessible.
+
+| Component             | URL                                                |
+| --------------------- | -------------------------------------------------- |
+| Frontend              | https://frontend-six-ruby-62.vercel.app            |
+| Backend API           | https://api-production-b715.up.railway.app         |
+| Swagger Documentation | https://api-production-b715.up.railway.app/swagger |
+| Health Monitoring     | https://api-production-b715.up.railway.app/health  |
+
+These endpoints allow reviewers to **explore the system and interact with the API directly**.
 
 # Table of Contents
 
 - **Product Overview**
   - [Overview](#overview)
   - [Problem This Project Solves](#the-problem-this-project-solves)
-  - [Live Production System](#live-production-system)
 
 - **System Design**
   - [Repository Structure](#repository-structure)
@@ -74,21 +85,6 @@ Key guarantees:
 * planning weeks follow a **strict lifecycle**
 * frozen plans cannot be modified
 * team leads have full execution visibility
-
----
-
-# Live Production System
-
-The application is deployed and publicly accessible.
-
-| Component             | URL                                                |
-| --------------------- | -------------------------------------------------- |
-| Frontend              | https://frontend-six-ruby-62.vercel.app            |
-| Backend API           | https://api-production-b715.up.railway.app         |
-| Swagger Documentation | https://api-production-b715.up.railway.app/swagger |
-| Health Monitoring     | https://api-production-b715.up.railway.app/health  |
-
-These endpoints allow reviewers to **explore the system and interact with the API directly**.
 
 ---
 
