@@ -1,14 +1,16 @@
 # Diagrams
 
-Architecture and design diagrams for the Weekly Planner system.
+This folder is Mermaid-first and stores architecture and flow diagrams used in docs and design reviews.
 
-## Files
+## Diagram Policy
 
-| Diagram | Description |
-| ------- | ----------- |
-| `architecture.png` | High-level system architecture |
-| `sequence-planning.png` | Planning week creation sequence |
-| `database-schema.png` | Entity-relationship diagram |
+- Use Mermaid syntax for all new diagrams
+- Keep node names aligned with production service names
+- Keep diagrams short and operationally readable
+- Do not store screenshot-based diagram assets in this folder
 
-> **Note:** Generate diagrams from the Mermaid sources in `docs/architecture.md`
-> or export from your preferred diagramming tool.
+## Recommended Diagrams
+
+1. System architecture (frontend, backend, database)
+2. Application flow (setup -> backlog -> planning -> freeze -> execution)
+3. Reliability flow (health checks and incident response path)
